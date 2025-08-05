@@ -909,40 +909,59 @@
 
         // モバイル版データ生成
         function generateMobileData() {
-            const groups = [
-                { start: 0, months: ['1月', '2月', '3月'], data: [
-                    { carryover: [0, '50k', '45k'], income: ['100k', '30k', '50k'], expenses: [
-                        ['食費', '-20k', '80k'], ['日用品', '-15k', '65k'], ['交通費', '-18k', '77k']
-                    ]}
-                ]},
-                { start: 3, months: ['4月', '5月', '6月'], data: [
-                    { carryover: ['60k', '80k', '75k'], income: ['40k', '20k', '35k'], expenses: [
-                        ['医療費', '-12k', '88k'], ['娯楽', '-8k', '92k'], ['雑費', '-15k', '95k']
-                    ]}
-                ]},
-                { start: 6, months: ['夏ボ', '7月', '8月'], data: [
-                    { carryover: ['90k', '140k', '125k'], income: ['80k', '25k', '15k'], expenses: [
-                        ['旅行', '-25k', '145k'], ['食費', '-20k', '145k'], ['日用品', '-12k', '128k']
-                    ]}
-                ]},
-                { start: 9, months: ['9月', '10月', '11月'], data: [
-                    { carryover: ['110k', '95k', '85k'], income: ['25k', '20k', '15k'], expenses: [
-                        ['交通費', '-18k', '117k'], ['光熱費', '-15k', '100k'], ['雑費', '-10k', '75k']
-                    ]}
-                ]},
-                { start: 12, months: ['冬ボ', '12月', '-'], data: [
-                    { carryover: ['70k', '120k', '0'], income: ['70k', '30k', '0'], expenses: [
-                        ['ギフト', '-8k', '112k'], ['食費', '-22k', '128k'], ['-', '0', '0']
-                    ]}
-                ]}
+            const groupsData = [
+                // グループ1: 1-3月
+                {
+                    carryover: ['0', '50k', '45k'],
+                    income: ['100k', '30k', '50k'],
+                    expenses: [
+                        { purpose: ['食費', '日用品', '交通費'], amount: ['-20k', '-15k', '-18k'], balance: ['80k', '65k', '77k'] },
+                        { purpose: ['衣服', '書籍', '外食'], amount: ['-15k', '-10k', '-12k'], balance: ['65k', '55k', '65k'] }
+                    ]
+                },
+                // グループ2: 4-6月
+                {
+                    carryover: ['60k', '80k', '75k'],
+                    income: ['40k', '20k', '35k'],
+                    expenses: [
+                        { purpose: ['医療費', '娯楽', '雑費'], amount: ['-12k', '-8k', '-15k'], balance: ['88k', '92k', '95k'] },
+                        { purpose: ['その他', '交通費', '光熱費'], amount: ['-8k', '-5k', '-10k'], balance: ['80k', '87k', '85k'] }
+                    ]
+                },
+                // グループ3: 夏ボーナス-8月
+                {
+                    carryover: ['90k', '140k', '125k'],
+                    income: ['80k', '25k', '15k'],
+                    expenses: [
+                        { purpose: ['旅行', '食費', '日用品'], amount: ['-25k', '-20k', '-12k'], balance: ['145k', '145k', '128k'] },
+                        { purpose: ['特別支出', '衣服', '雑費'], amount: ['-30k', '-15k', '-8k'], balance: ['115k', '130k', '120k'] }
+                    ]
+                },
+                // グループ4: 9-11月
+                {
+                    carryover: ['110k', '95k', '85k'],
+                    income: ['25k', '20k', '15k'],
+                    expenses: [
+                        { purpose: ['交通費', '光熱費', '雑費'], amount: ['-18k', '-15k', '-10k'], balance: ['117k', '100k', '90k'] },
+                        { purpose: ['食費', '日用品', 'その他'], amount: ['-12k', '-8k', '-5k'], balance: ['105k', '92k', '85k'] }
+                    ]
+                },
+                // グループ5: 冬ボーナス-12月
+                {
+                    carryover: ['70k', '120k', '0'],
+                    income: ['70k', '30k', '0'],
+                    expenses: [
+                        { purpose: ['ギフト', '食費', '-'], amount: ['-8k', '-22k', '0'], balance: ['132k', '128k', '0'] },
+                        { purpose: ['年末支出', 'その他', '-'], amount: ['-12k', '-18k', '0'], balance: ['120k', '110k', '0'] }
+                    ]
+                }
             ];
 
-            groups.forEach((group, groupIndex) => {
+            groupsData.forEach((data, groupIndex) => {
                 const bodyId = `mobileTableBody${groupIndex + 1}`;
                 const body = document.getElementById(bodyId);
                 if (!body) return;
 
-                const data = group.data[0];
                 let html = '';
 
                 // 繰越
@@ -962,8 +981,8 @@
                 // 月初合計
                 html += '<div class="mobile-row-label total">月初合計</div>';
                 data.carryover.forEach((carryVal, i) => {
-                    const carry = parseInt(carryVal.replace('k', '')) * 1000 || 0;
-                    const income = parseInt(data.income[i].replace('k', '')) * 1000 || 0;
+                    const carry = parseInt(carryVal.toString().replace('k', '')) * 1000 || 0;
+                    const income = parseInt(data.income[i].toString().replace('k', '')) * 1000 || 0;
                     const total = carry + income;
                     const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
                     html += `<div class="mobile-amount-cell total ${isBonus ? 'bonus-col' : ''}">${total === 0 ? '0' : (total/1000) + 'k'}</div>`;
@@ -983,42 +1002,35 @@
                 // 支出行
                 data.expenses.forEach((expense, expIndex) => {
                     html += `<div class="mobile-row-label expense">今月-${expIndex + 1}</div>`;
-                    expense.forEach((vals, i) => {
-                        if (typeof vals === 'string') {
-                            const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                            html += `<div class="mobile-amount-cell-group ${isBonus ? 'bonus-col' : ''}">
-                                <div class="mobile-expense-purpose" onclick="editMobilePurpose(this)">${expense[0] || '-'}</div>
-                                <div class="mobile-expense-amount" onclick="editMobileAmount(this)">${expense[1] || '0'}</div>
-                                <div class="mobile-expense-balance">${expense[2] || '0'}</div>
-                            </div>`;
-                        } else {
-                            const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                            html += `<div class="mobile-amount-cell-group ${isBonus ? 'bonus-col' : ''}">
-                                <div class="mobile-expense-purpose" onclick="editMobilePurpose(this)">${vals[0] || '-'}</div>
-                                <div class="mobile-expense-amount" onclick="editMobileAmount(this)">${vals[1] || '0'}</div>
-                                <div class="mobile-expense-balance">${vals[2] || '0'}</div>
-                            </div>`;
-                        }
-                    });
+                    for (let i = 0; i < 3; i++) {
+                        const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
+                        html += `<div class="mobile-amount-cell-group ${isBonus ? 'bonus-col' : ''}">
+                            <div class="mobile-expense-purpose" onclick="editMobilePurpose(this)">${expense.purpose[i] || '-'}</div>
+                            <div class="mobile-expense-amount" onclick="editMobileAmount(this)">${expense.amount[i] || '0'}</div>
+                            <div class="mobile-expense-balance">${expense.balance[i] || '0'}</div>
+                        </div>`;
+                    }
                 });
 
                 // 支出合計
                 html += '<div class="mobile-row-label expense-total">支出合計</div>';
-                data.expenses[0].forEach((_, i) => {
+                for (let i = 0; i < 3; i++) {
                     const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                    const total = data.expenses.reduce((sum, exp) => {
-                        const amount = parseInt(exp[i]?.replace(/[^-0-9]/g, '')) || 0;
-                        return sum + amount;
-                    }, 0);
+                    let total = 0;
+                    data.expenses.forEach(expense => {
+                        const amount = parseInt(expense.amount[i]?.toString().replace(/[^-0-9]/g, '')) || 0;
+                        total += amount;
+                    });
                     html += `<div class="mobile-amount-cell expense-total ${isBonus ? 'bonus-col' : ''}">${total === 0 ? '0' : (total/1000) + 'k'}</div>`;
-                });
+                }
 
                 // 残高
                 html += '<div class="mobile-row-label balance">残高</div>';
-                data.expenses[0].forEach((_, i) => {
+                for (let i = 0; i < 3; i++) {
                     const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                    html += `<div class="mobile-amount-cell balance ${isBonus ? 'bonus-col' : ''}">${data.expenses[data.expenses.length - 1][i]?.split(' ')[2] || '0'}</div>`;
-                });
+                    const lastExpense = data.expenses[data.expenses.length - 1];
+                    html += `<div class="mobile-amount-cell balance ${isBonus ? 'bonus-col' : ''}">${lastExpense.balance[i] || '0'}</div>`;
+                }
 
                 body.innerHTML = html;
             });
