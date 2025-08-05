@@ -1,0 +1,600 @@
+<!-- 3. 縦アコーディオン
+
+各月を縦に積み重ね
+タップで展開/折りたたみ
+複数月を同時展開可能 -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予備費管理 - アコーディオン式</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 15px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .year-info {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .control-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .months-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .month-item {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .month-header {
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+        }
+
+        .month-header.bonus {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .month-header:hover {
+            opacity: 0.9;
+        }
+
+        .month-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .month-summary {
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .month-balance {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .toggle-icon {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .month-item.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .month-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .month-item.expanded .month-content {
+            max-height: 1000px;
+        }
+
+        .month-body {
+            padding: 20px;
+        }
+
+        .summary-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-item.carryover {
+            background: #e8f5e8;
+            color: #27ae60;
+        }
+
+        .summary-item.income {
+            background: #e8f5e8;
+            color: #27ae60;
+        }
+
+        .summary-item.total {
+            background: #e1f5fe;
+            color: #01579b;
+        }
+
+        .summary-item.balance {
+            background: #f3e5f5;
+            color: #4a148c;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .summary-value {
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        .summary-value:hover {
+            background: rgba(255,255,255,0.5);
+        }
+
+        .expenses-section {
+            margin-top: 20px;
+        }
+
+        .expenses-header {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .expense-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ecf0f1;
+            align-items: center;
+        }
+
+        .expense-purpose {
+            color: #2c3e50;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .expense-purpose:hover {
+            background: #ecf0f1;
+        }
+
+        .expense-amount {
+            color: #c62828;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .expense-amount:hover {
+            background: #ffebee;
+        }
+
+        .expense-balance {
+            color: #7b1fa2;
+            font-weight: 700;
+            text-align: center;
+            background: #f3e5f5;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .add-expense {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .add-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .totals-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .totals-row .summary-item.expense-total {
+            background: #ffcdd2;
+            color: #b71c1c;
+        }
+
+        .quick-actions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .fab {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: #3498db;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        .fab.expand-all {
+            background: #27ae60;
+        }
+
+        .fab.collapse-all {
+            background: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .summary-row,
+            .totals-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .expense-item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                text-align: center;
+            }
+            
+            .month-header {
+                padding: 12px 15px;
+            }
+            
+            .month-title {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💰 予備費管理</h1>
+        <div class="year-info">2025年度 - アコーディオン式</div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" onclick="expandAll()">すべて展開</button>
+        <button class="control-btn" onclick="collapseAll()">すべて折りたたみ</button>
+        <button class="control-btn" onclick="expandBonus()">ボーナス月のみ展開</button>
+    </div>
+
+    <div class="months-container" id="monthsContainer">
+        <!-- 月データがここに表示される -->
+    </div>
+
+    <div class="quick-actions">
+        <button class="fab expand-all" onclick="expandAll()" title="すべて展開">⬇</button>
+        <button class="fab collapse-all" onclick="collapseAll()" title="すべて折りたたみ">⬆</button>
+    </div>
+
+    <script>
+        const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '夏ボーナス', '7月', '8月', '9月', '10月', '11月', '冬ボーナス', '12月'];
+        const bonusMonths = [6, 12];
+        
+        // サンプルデータ
+        const monthData = {
+            0: { carryover: 0, income: 100000, expenses: [{purpose: '食費', amount: -20000}, {purpose: '衣服', amount: -15000}, {purpose: '雑費', amount: -10000}] },
+            1: { carryover: 55000, income: 30000, expenses: [{purpose: '日用品', amount: -15000}, {purpose: '書籍', amount: -10000}] },
+            2: { carryover: 60000, income: 50000, expenses: [{purpose: '交通費', amount: -18000}, {purpose: '外食', amount: -12000}] },
+            3: { carryover: 80000, income: 40000, expenses: [{purpose: '医療費', amount: -12000}] },
+            4: { carryover: 108000, income: 20000, expenses: [{purpose: '娯楽', amount: -8000}] },
+            5: { carryover: 120000, income: 35000, expenses: [{purpose: '雑費', amount: -15000}] },
+            6: { carryover: 140000, income: 80000, expenses: [{purpose: '旅行', amount: -25000}, {purpose: 'ボーナス特別支出', amount: -30000}] },
+            7: { carryover: 165000, income: 25000, expenses: [{purpose: '食費', amount: -20000}] },
+            8: { carryover: 170000, income: 15000, expenses: [{purpose: '日用品', amount: -12000}] },
+            9: { carryover: 173000, income: 25000, expenses: [{purpose: '交通費', amount: -18000}] },
+            10: { carryover: 180000, income: 20000, expenses: [{purpose: '光熱費', amount: -15000}] },
+            11: { carryover: 185000, income: 15000, expenses: [{purpose: '雑費', amount: -10000}] },
+            12: { carryover: 190000, income: 70000, expenses: [{purpose: 'ギフト', amount: -8000}, {purpose: '年末特別支出', amount: -12000}] },
+            13: { carryover: 240000, income: 30000, expenses: [{purpose: '食費', amount: -22000}, {purpose: '年末調整', amount: -18000}] }
+        };
+
+        function renderMonths() {
+            const container = document.getElementById('monthsContainer');
+            let html = '';
+            
+            monthNames.forEach((monthName, index) => {
+                const data = monthData[index] || { carryover: 0, income: 0, expenses: [] };
+                const monthTotal = data.carryover + data.income;
+                const expenseTotal = data.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const finalBalance = monthTotal + expenseTotal;
+                const isBonus = bonusMonths.includes(index);
+                
+                let runningBalance = monthTotal;
+                let expensesHtml = '';
+                
+                data.expenses.forEach((expense, expIndex) => {
+                    runningBalance += expense.amount;
+                    expensesHtml += `
+                        <div class="expense-item">
+                            <div class="expense-purpose" onclick="editPurpose(this, ${index}, ${expIndex})">${expense.purpose}</div>
+                            <div class="expense-amount" onclick="editExpenseAmount(this, ${index}, ${expIndex})">${formatAmount(expense.amount)}</div>
+                            <div class="expense-balance">${formatAmount(runningBalance)}</div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                    <div class="month-item" id="month-${index}">
+                        <div class="month-header ${isBonus ? 'bonus' : ''}" onclick="toggleMonth(${index})">
+                            <div class="month-title">${monthName}</div>
+                            <div class="month-summary">
+                                <div>残高: <span class="month-balance">${formatAmount(finalBalance)}</span></div>
+                            </div>
+                            <div class="toggle-icon">▼</div>
+                        </div>
+                        <div class="month-content">
+                            <div class="month-body">
+                                <div class="summary-row">
+                                    <div class="summary-item carryover">
+                                        <div class="summary-label">繰越</div>
+                                        <div class="summary-value" onclick="editValue(this, ${index}, 'carryover')">${formatAmount(data.carryover)}</div>
+                                    </div>
+                                    <div class="summary-item income">
+                                        <div class="summary-label">今月+</div>
+                                        <div class="summary-value" onclick="editValue(this, ${index}, 'income')">${formatAmount(data.income)}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="summary-row">
+                                    <div class="summary-item total">
+                                        <div class="summary-label">月初合計</div>
+                                        <div class="summary-value">${formatAmount(monthTotal)}</div>
+                                    </div>
+                                    <div class="summary-item balance">
+                                        <div class="summary-label">最終残高</div>
+                                        <div class="summary-value">${formatAmount(finalBalance)}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="expenses-section">
+                                    <div class="expenses-header">支出項目</div>
+                                    ${expensesHtml}
+                                    <div class="add-expense">
+                                        <button class="add-btn" onclick="addExpense(${index})">+ 支出を追加</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="totals-row">
+                                    <div class="summary-item expense-total">
+                                        <div class="summary-label">支出合計</div>
+                                        <div class="summary-value">${formatAmount(expenseTotal)}</div>
+                                    </div>
+                                    <div class="summary-item balance">
+                                        <div class="summary-label">収支</div>
+                                        <div class="summary-value">${formatAmount(finalBalance - data.carryover)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function toggleMonth(monthIndex) {
+            const monthItem = document.getElementById(`month-${monthIndex}`);
+            monthItem.classList.toggle('expanded');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.month-item').forEach(item => {
+                item.classList.add('expanded');
+            });
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.month-item').forEach(item => {
+                item.classList.remove('expanded');
+            });
+        }
+
+        function expandBonus() {
+            collapseAll();
+            bonusMonths.forEach(monthIndex => {
+                document.getElementById(`month-${monthIndex}`).classList.add('expanded');
+            });
+        }
+
+        function formatAmount(amount) {
+            if (amount === 0) return '0';
+            return amount.toLocaleString();
+        }
+
+        function editValue(cell, monthIndex, field) {
+            const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.fontSize = '16px';
+            input.style.padding = '8px';
+            input.style.border = '2px solid #3498db';
+            input.style.borderRadius = '4px';
+            input.style.textAlign = 'center';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = parseInt(input.value) || 0;
+                if (!monthData[monthIndex]) monthData[monthIndex] = { carryover: 0, income: 0, expenses: [] };
+                monthData[monthIndex][field] = value;
+                renderMonths();
+                // 編集後も展開状態を維持
+                document.getElementById(`month-${monthIndex}`).classList.add('expanded');
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveValue();
+            });
+        }
+
+        function editPurpose(cell, monthIndex, expenseIndex) {
+            const currentValue = cell.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.fontSize = '14px';
+            input.style.padding = '8px';
+            input.style.border = '2px solid #3498db';
+            input.style.borderRadius = '4px';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = input.value.trim() || '未分類';
+                monthData[monthIndex].expenses[expenseIndex].purpose = value;
+                renderMonths();
+                document.getElementById(`month-${monthIndex}`).classList.add('expanded');
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveValue();
+            });
+        }
+
+        function editExpenseAmount(cell, monthIndex, expenseIndex) {
+            const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.fontSize = '14px';
+            input.style.padding = '8px';
+            input.style.border = '2px solid #3498db';
+            input.style.borderRadius = '4px';
+            input.style.textAlign = 'center';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = parseInt(input.value) || 0;
+                monthData[monthIndex].expenses[expenseIndex].amount = value;
+                renderMonths();
+                document.getElementById(`month-${monthIndex}`).classList.add('expanded');
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveValue();
+            });
+        }
+
+        function addExpense(monthIndex) {
+            if (!monthData[monthIndex]) monthData[monthIndex] = { carryover: 0, income: 0, expenses: [] };
+            monthData[monthIndex].expenses.push({ purpose: '新しい支出', amount: 0 });
+            renderMonths();
+            document.getElementById(`month-${monthIndex}`).classList.add('expanded');
+        }
+
+        // 初期表示
+        renderMonths();
+    </script>
+</body>
+</html>

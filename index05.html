@@ -1,0 +1,704 @@
+<!-- 4. スワイプ式
+
+カードのように左右スワイプで月を切り替え
+下部にドット表示で現在位置を表示 -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予備費管理 - スワイプ式</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .year-info {
+            color: #7f8c8d;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .swipe-container {
+            position: relative;
+            height: calc(100vh - 120px);
+            overflow: hidden;
+        }
+
+        .months-wrapper {
+            display: flex;
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+
+        .month-card {
+            min-width: 100vw;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .month-card.bonus {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .month-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .month-content {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+        }
+
+        .summary-card.carryover {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c8 100%);
+            color: #27ae60;
+        }
+
+        .summary-card.income {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c8 100%);
+            color: #27ae60;
+        }
+
+        .summary-card.total {
+            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+            color: #01579b;
+        }
+
+        .summary-card.balance {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            color: #4a148c;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .summary-value {
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .summary-value:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .expenses-section {
+            margin-top: 20px;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .expense-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .expense-item {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+
+        .expense-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .expense-purpose {
+            color: #2c3e50;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .expense-purpose:hover {
+            background: #ecf0f1;
+        }
+
+        .expense-amount {
+            color: #e74c3c;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            background: #ffebee;
+            transition: all 0.2s ease;
+        }
+
+        .expense-amount:hover {
+            background: #ffcdd2;
+            transform: scale(1.05);
+        }
+
+        .expense-balance {
+            color: #8e24aa;
+            font-weight: 700;
+            text-align: center;
+            background: #f3e5f5;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .add-expense {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(76,175,80,0.3);
+            transition: all 0.2s ease;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76,175,80,0.4);
+        }
+
+        .totals-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .totals-section .summary-card.expense-total {
+            background: linear-gradient(135deg, #ffcdd2 0%, #ef9a9a 100%);
+            color: #b71c1c;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(52,152,219,0.3);
+        }
+
+        .nav-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .nav-btn:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52,152,219,0.4);
+        }
+
+        .progress-indicator {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #bdc3c7;
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: #3498db;
+            transform: scale(1.5);
+        }
+
+        .progress-dot.bonus {
+            background: #e91e63;
+        }
+
+        .progress-dot.bonus.active {
+            background: #c2185b;
+        }
+
+        .current-month {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .swipe-hint {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            right: 20px;
+            transform: translateY(-50%);
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            pointer-events: none;
+            animation: swipeHint 2s ease-in-out infinite;
+        }
+
+        @keyframes swipeHint {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        .gesture-indicator {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .summary-grid,
+            .totals-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .expense-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .navigation {
+                padding: 10px 15px;
+            }
+            
+            .nav-btn {
+                padding: 10px 15px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💰 予備費管理</h1>
+        <div class="year-info">2025年度 - スワイプ式</div>
+    </div>
+
+    <div class="swipe-container" id="swipeContainer">
+        <div class="months-wrapper" id="monthsWrapper">
+            <!-- 月データがここに表示される -->
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn">← 前月</button>
+        <div class="progress-indicator" id="progressIndicator">
+            <!-- プログレスドットがここに表示される -->
+        </div>
+        <div class="current-month" id="currentMonth">1月</div>
+        <button class="nav-btn" id="nextBtn">次月 →</button>
+    </div>
+
+    <script>
+        const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '夏ボーナス', '7月', '8月', '9月', '10月', '11月', '冬ボーナス', '12月'];
+        const bonusMonths = [6, 12];
+        let currentMonthIndex = 0;
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        
+        // サンプルデータ
+        const monthData = {
+            0: { carryover: 0, income: 100000, expenses: [{purpose: '食費', amount: -20000}, {purpose: '衣服', amount: -15000}] },
+            1: { carryover: 65000, income: 30000, expenses: [{purpose: '日用品', amount: -15000}, {purpose: '書籍', amount: -10000}] },
+            2: { carryover: 70000, income: 50000, expenses: [{purpose: '交通費', amount: -18000}, {purpose: '外食', amount: -12000}] },
+            6: { carryover: 90000, income: 80000, expenses: [{purpose: '旅行', amount: -25000}, {purpose: 'ボーナス特別支出', amount: -30000}] },
+            12: { carryover: 70000, income: 70000, expenses: [{purpose: 'ギフト', amount: -8000}, {purpose: 'その他', amount: -7000}] }
+        };
+
+        function renderMonths() {
+            const wrapper = document.getElementById('monthsWrapper');
+            let html = '';
+            
+            monthNames.forEach((monthName, index) => {
+                const data = monthData[index] || { carryover: 0, income: 0, expenses: [] };
+                const monthTotal = data.carryover + data.income;
+                const expenseTotal = data.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const finalBalance = monthTotal + expenseTotal;
+                const isBonus = bonusMonths.includes(index);
+                
+                let runningBalance = monthTotal;
+                let expensesHtml = '';
+                
+                data.expenses.forEach((expense, expIndex) => {
+                    runningBalance += expense.amount;
+                    expensesHtml += `
+                        <div class="expense-item">
+                            <div class="expense-purpose" onclick="editPurpose(this, ${index}, ${expIndex})">${expense.purpose}</div>
+                            <div class="expense-amount" onclick="editExpenseAmount(this, ${index}, ${expIndex})">${formatAmount(expense.amount)}</div>
+                            <div class="expense-balance">${formatAmount(runningBalance)}</div>
+                        </div>
+                    `;
+                });
+                
+                html += `
+                    <div class="month-card ${isBonus ? 'bonus' : ''}">
+                        <div class="month-title">${monthName}</div>
+                        <div class="month-content">
+                            <div class="summary-grid">
+                                <div class="summary-card carryover">
+                                    <div class="summary-label">繰越</div>
+                                    <div class="summary-value" onclick="editValue(this, ${index}, 'carryover')">${formatAmount(data.carryover)}</div>
+                                </div>
+                                <div class="summary-card income">
+                                    <div class="summary-label">今月+</div>
+                                    <div class="summary-value" onclick="editValue(this, ${index}, 'income')">${formatAmount(data.income)}</div>
+                                </div>
+                                <div class="summary-card total">
+                                    <div class="summary-label">月初合計</div>
+                                    <div class="summary-value">${formatAmount(monthTotal)}</div>
+                                </div>
+                                <div class="summary-card balance">
+                                    <div class="summary-label">最終残高</div>
+                                    <div class="summary-value">${formatAmount(finalBalance)}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="expenses-section">
+                                <div class="section-title">💸 支出項目</div>
+                                <div class="expense-list">
+                                    ${expensesHtml}
+                                </div>
+                                <div class="add-expense">
+                                    <button class="add-btn" onclick="addExpense(${index})">+ 支出を追加</button>
+                                </div>
+                            </div>
+                            
+                            <div class="totals-section">
+                                <div class="summary-card expense-total">
+                                    <div class="summary-label">支出合計</div>
+                                    <div class="summary-value">${formatAmount(expenseTotal)}</div>
+                                </div>
+                                <div class="summary-card balance">
+                                    <div class="summary-label">収支</div>
+                                    <div class="summary-value">${formatAmount(finalBalance - data.carryover)}</div>
+                                </div>
+                            </div>
+                        </div>
+                        ${index === 0 ? '<div class="swipe-hint">← スワイプして月を切り替え →</div>' : ''}
+                        <div class="gesture-indicator">左右にスワイプまたはボタンで移動</div>
+                    </div>
+                `;
+            });
+            
+            wrapper.innerHTML = html;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const indicator = document.getElementById('progressIndicator');
+            let html = '';
+            
+            monthNames.forEach((_, index) => {
+                const isActive = index === currentMonthIndex;
+                const isBonus = bonusMonths.includes(index);
+                html += `<div class="progress-dot ${isActive ? 'active' : ''} ${isBonus ? 'bonus' : ''}"></div>`;
+            });
+            
+            indicator.innerHTML = html;
+            document.getElementById('currentMonth').textContent = monthNames[currentMonthIndex];
+            
+            // ボタンの状態更新
+            document.getElementById('prevBtn').disabled = currentMonthIndex === 0;
+            document.getElementById('nextBtn').disabled = currentMonthIndex === 13;
+        }
+
+        function moveToMonth(monthIndex) {
+            if (monthIndex < 0 || monthIndex > 13) return;
+            
+            currentMonthIndex = monthIndex;
+            const wrapper = document.getElementById('monthsWrapper');
+            wrapper.style.transform = `translateX(-${monthIndex * 100}vw)`;
+            updateProgress();
+        }
+
+        function formatAmount(amount) {
+            if (amount === 0) return '0';
+            return amount.toLocaleString();
+        }
+
+        function editValue(cell, monthIndex, field) {
+            const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.fontSize = '18px';
+            input.style.padding = '8px';
+            input.style.border = '2px solid #3498db';
+            input.style.borderRadius = '8px';
+            input.style.textAlign = 'center';
+            input.style.background = 'white';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = parseInt(input.value) || 0;
+                if (!monthData[monthIndex]) monthData[monthIndex] = { carryover: 0, income: 0, expenses: [] };
+                monthData[monthIndex][field] = value;
+                renderMonths();
+                moveToMonth(monthIndex);
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveValue();
+            });
+        }
+
+        function editPurpose(cell, monthIndex, expenseIndex) {
+            const currentValue = cell.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.fontSize = '16px';
+            input.style.padding = '8px';
+            input.style.border = '2px solid #3498db';
+            input.style.borderRadius = '8px';
+            input.style.background = 'white';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = input.value.trim() || '未分類';
+                monthData[monthIndex].expenses[expenseIndex].purpose = value;
+                renderMonths();
+                moveToMonth(monthIndex);
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveValue();
+            });
+        }
+
+        function editExpenseAmount(cell, monthIndex, expenseIndex) {
+            const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.fontSize = '16px';
+            input.style.padding = '8px';
+            input.style.border = '2px solid #3498db';
+            input.style.borderRadius = '8px';
+            input.style.textAlign = 'center';
+            input.style.background = 'white';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = parseInt(input.value) || 0;
+                monthData[monthIndex].expenses[expenseIndex].amount = value;
+                renderMonths();
+                moveToMonth(monthIndex);
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveValue();
+            });
+        }
+
+        function addExpense(monthIndex) {
+            if (!monthData[monthIndex]) monthData[monthIndex] = { carryover: 0, income: 0, expenses: [] };
+            monthData[monthIndex].expenses.push({ purpose: '新しい支出', amount: 0 });
+            renderMonths();
+            moveToMonth(monthIndex);
+        }
+
+        // スワイプイベント
+        const container = document.getElementById('swipeContainer');
+
+        container.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+
+        container.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            currentX = e.touches[0].clientX;
+        });
+
+        container.addEventListener('touchend', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const deltaX = startX - currentX;
+            const threshold = 50;
+            
+            if (deltaX > threshold && currentMonthIndex < 13) {
+                moveToMonth(currentMonthIndex + 1);
+            } else if (deltaX < -threshold && currentMonthIndex > 0) {
+                moveToMonth(currentMonthIndex - 1);
+            }
+        });
+
+        // マウスイベント（PC対応）
+        container.addEventListener('mousedown', function(e) {
+            startX = e.clientX;
+            isDragging = true;
+        });
+
+        container.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            currentX = e.clientX;
+        });
+
+        container.addEventListener('mouseup', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const deltaX = startX - currentX;
+            const threshold = 50;
+            
+            if (deltaX > threshold && currentMonthIndex < 13) {
+                moveToMonth(currentMonthIndex + 1);
+            } else if (deltaX < -threshold && currentMonthIndex > 0) {
+                moveToMonth(currentMonthIndex - 1);
+            }
+        });
+
+        // ナビゲーションボタン
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentMonthIndex > 0) moveToMonth(currentMonthIndex - 1);
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentMonthIndex < 13) moveToMonth(currentMonthIndex + 1);
+        });
+
+        // キーボードイベント
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft' && currentMonthIndex > 0) {
+                moveToMonth(currentMonthIndex - 1);
+            } else if (e.key === 'ArrowRight' && currentMonthIndex < 13) {
+                moveToMonth(currentMonthIndex + 1);
+            }
+        });
+
+        // 初期表示
+        renderMonths();
+        moveToMonth(0);
+    </script>
+</body>
+</html>
