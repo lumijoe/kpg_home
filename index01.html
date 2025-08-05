@@ -41,6 +41,10 @@
             border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             overflow: hidden;
+            position: relative;
+        }
+
+        .budget-scroll {
             overflow-x: auto;
         }
 
@@ -63,6 +67,9 @@
             background: #34495e;
             color: white;
             font-size: 14px;
+            position: sticky;
+            left: 0;
+            z-index: 10;
         }
 
         .month-header .month {
@@ -101,6 +108,9 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
+            position: sticky;
+            left: 0;
+            z-index: 5;
         }
 
         .row-label.carryover {
@@ -286,7 +296,8 @@
     </div>
 
     <div class="budget-container">
-        <div class="budget-table">
+        <div class="budget-scroll">
+            <div class="budget-table">
             <!-- 月のヘッダー -->
             <div class="month-header">
                 <div class="label">項目</div>
@@ -684,6 +695,7 @@
                 <div class="amount-cell balance">85,000</div>
                 <div class="amount-cell balance bonus-col">120,000</div>
                 <div class="amount-cell balance">100,000</div>
+            </div>
             </div>
         </div>
     </div>
