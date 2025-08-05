@@ -853,7 +853,8 @@
                     totalCells[monthIndex].textContent = formatAmount(currentBalance);
                 }
                 
-                // 4. 各支出行の残高を順次計算
+                // 4. 各支出行の残高を順次計算 & 支出合計を集計
+                let totalExpenses = 0;
                 const expenseGroups = document.querySelectorAll('.amount-cell-group');
                 expenseGroups.forEach((group, groupIndex) => {
                     // 該当する月のグループかチェック
@@ -866,9 +867,24 @@
                             const expense = parseInt(expenseValue) || 0;
                             currentBalance += expense; // 支出はマイナス値なので加算
                             balanceCell.textContent = formatAmount(currentBalance);
+                            
+                            // 支出合計に加算
+                            totalExpenses += expense;
                         }
                     }
                 });
+                
+                // 5. 支出合計を更新
+                const expenseTotalCells = document.querySelectorAll('.amount-cell.expense-total');
+                if (expenseTotalCells[monthIndex]) {
+                    expenseTotalCells[monthIndex].textContent = formatAmount(totalExpenses);
+                }
+                
+                // 6. 最終残高を更新
+                const finalBalanceCells = document.querySelectorAll('.amount-cell.balance');
+                if (finalBalanceCells[monthIndex]) {
+                    finalBalanceCells[monthIndex].textContent = formatAmount(currentBalance);
+                }
             }
         }
     </script>
