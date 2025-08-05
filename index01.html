@@ -77,20 +77,30 @@
             text-align: center;
             font-size: 13px;
             border-left: 1px solid rgba(255,255,255,0.2);
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 2px;
         }
 
         .month-header .month.bonus {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
-        .month-subheader {
-            font-size: 11px;
-            padding: 5px 2px;
-            background: rgba(255,255,255,0.1);
+        .expense-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: #ecf0f1;
+        }
+
+        .expense-header.bonus-col {
+            background: #ffe0b2;
+        }
+
+        .expense-header-cell {
+            background: #34495e;
+            color: white;
+            padding: 8px 4px;
             text-align: center;
+            font-size: 11px;
+            font-weight: 600;
         }
 
         .table-body {
@@ -301,90 +311,20 @@
             <!-- 月のヘッダー -->
             <div class="month-header">
                 <div class="label">項目</div>
-                <div class="month">
-                    1月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    2月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    3月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    4月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    5月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    6月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month bonus">
-                    夏ボーナス
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    7月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    8月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    9月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    10月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    11月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month bonus">
-                    冬ボーナス
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
-                <div class="month">
-                    12月
-                    <div class="month-subheader">用途</div>
-                    <div class="month-subheader">金額</div>
-                    <div class="month-subheader">残高</div>
-                </div>
+                <div class="month">1月</div>
+                <div class="month">2月</div>
+                <div class="month">3月</div>
+                <div class="month">4月</div>
+                <div class="month">5月</div>
+                <div class="month">6月</div>
+                <div class="month bonus">夏ボーナス</div>
+                <div class="month">7月</div>
+                <div class="month">8月</div>
+                <div class="month">9月</div>
+                <div class="month">10月</div>
+                <div class="month">11月</div>
+                <div class="month bonus">冬ボーナス</div>
+                <div class="month">12月</div>
             </div>
 
             <!-- テーブル本体 -->
@@ -439,6 +379,79 @@
                 <div class="amount-cell total">100,000</div>
                 <div class="amount-cell total bonus-col">140,000</div>
                 <div class="amount-cell total">150,000</div>
+
+                <!-- 支出ヘッダー -->
+                <div class="row-label expense">支出項目</div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header bonus-col">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header bonus-col">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
+                <div class="expense-header">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>
 
                 <!-- 支出行（3列構成：用途、金額、残高） -->
                 <div class="row-label expense">今月-1</div>
