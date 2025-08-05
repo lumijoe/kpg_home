@@ -1,0 +1,505 @@
+<!-- 予備費専用ページ -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予備費管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .year-info {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .budget-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        .budget-table {
+            min-width: 1400px;
+            width: 100%;
+        }
+
+        .month-header {
+            display: grid;
+            grid-template-columns: 120px repeat(14, 1fr);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .month-header .label {
+            padding: 15px 10px;
+            text-align: center;
+            background: #34495e;
+            color: white;
+            font-size: 14px;
+        }
+
+        .month-header .month {
+            padding: 15px 8px;
+            text-align: center;
+            font-size: 13px;
+            border-left: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .month-header .month.bonus {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .table-body {
+            display: grid;
+            grid-template-columns: 120px repeat(14, 1fr);
+        }
+
+        .row-label {
+            background: #ecf0f1;
+            padding: 12px 10px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .row-label.carryover {
+            background: #e8f5e8;
+            color: #27ae60;
+        }
+
+        .row-label.income {
+            background: #e8f5e8;
+            color: #27ae60;
+        }
+
+        .row-label.total {
+            background: #e1f5fe;
+            color: #01579b;
+            font-weight: 700;
+        }
+
+        .row-label.expense {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .row-label.expense-total {
+            background: #ffcdd2;
+            color: #b71c1c;
+            font-weight: 700;
+        }
+
+        .row-label.balance {
+            background: #f3e5f5;
+            color: #4a148c;
+            font-weight: 700;
+        }
+
+        .amount-cell {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            border-left: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 45px;
+        }
+
+        .amount-cell:hover {
+            background: #e3f2fd;
+            transform: translateY(-1px);
+        }
+
+        .amount-cell.bonus-col {
+            background: #fff8e1;
+        }
+
+        .amount-cell.bonus-col:hover {
+            background: #ffecb3;
+        }
+
+        .amount-cell.carryover {
+            background: #f1f8e9;
+            font-weight: 600;
+            color: #388e3c;
+        }
+
+        .amount-cell.income {
+            background: #f1f8e9;
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .amount-cell.total {
+            background: #e0f2f1;
+            font-weight: 700;
+            color: #00695c;
+        }
+
+        .amount-cell.expense {
+            color: #d32f2f;
+            font-weight: 500;
+        }
+
+        .amount-cell.expense-total {
+            background: #ffebee;
+            font-weight: 700;
+            color: #c62828;
+        }
+
+        .amount-cell.balance {
+            background: #f3e5f5;
+            font-weight: 700;
+            color: #7b1fa2;
+            font-size: 14px;
+        }
+
+        .amount-cell.zero {
+            color: #9e9e9e;
+        }
+
+        .add-expense-row {
+            grid-column: 1 / -1;
+            padding: 15px;
+            text-align: center;
+            background: #fafafa;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .add-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .add-btn:hover {
+            background: #45a049;
+        }
+
+        .expense-row-number {
+            font-size: 11px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .budget-container {
+                margin: 0 -20px;
+                border-radius: 0;
+            }
+            
+            .budget-table {
+                min-width: 1200px;
+            }
+            
+            .month-header .month,
+            .amount-cell {
+                font-size: 11px;
+                padding: 8px 4px;
+            }
+            
+            .row-label {
+                font-size: 11px;
+                padding: 8px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💰 予備費管理</h1>
+        <div class="year-info">2025年度</div>
+    </div>
+
+    <div class="budget-container">
+        <div class="budget-table">
+            <!-- 月のヘッダー -->
+            <div class="month-header">
+                <div class="label">項目</div>
+                <div class="month">1月</div>
+                <div class="month">2月</div>
+                <div class="month">3月</div>
+                <div class="month">4月</div>
+                <div class="month">5月</div>
+                <div class="month">6月</div>
+                <div class="month bonus">夏ボーナス</div>
+                <div class="month">7月</div>
+                <div class="month">8月</div>
+                <div class="month">9月</div>
+                <div class="month">10月</div>
+                <div class="month">11月</div>
+                <div class="month bonus">冬ボーナス</div>
+                <div class="month">12月</div>
+            </div>
+
+            <!-- テーブル本体 -->
+            <div class="table-body" id="tableBody">
+                <!-- 繰越 -->
+                <div class="row-label carryover">繰越</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">0</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">50,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">45,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">60,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">80,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">75,000</div>
+                <div class="amount-cell carryover bonus-col" onclick="editAmount(this)">90,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">140,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">125,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">110,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">95,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">85,000</div>
+                <div class="amount-cell carryover bonus-col" onclick="editAmount(this)">70,000</div>
+                <div class="amount-cell carryover" onclick="editAmount(this)">120,000</div>
+
+                <!-- 今月+ -->
+                <div class="row-label income">今月+</div>
+                <div class="amount-cell income" onclick="editAmount(this)">100,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">30,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">50,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">40,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">20,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">35,000</div>
+                <div class="amount-cell income bonus-col" onclick="editAmount(this)">80,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">25,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">15,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">25,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">20,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">15,000</div>
+                <div class="amount-cell income bonus-col" onclick="editAmount(this)">70,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">30,000</div>
+
+                <!-- 月初合計 -->
+                <div class="row-label total">月初合計</div>
+                <div class="amount-cell total">100,000</div>
+                <div class="amount-cell total">80,000</div>
+                <div class="amount-cell total">95,000</div>
+                <div class="amount-cell total">100,000</div>
+                <div class="amount-cell total">100,000</div>
+                <div class="amount-cell total">110,000</div>
+                <div class="amount-cell total bonus-col">170,000</div>
+                <div class="amount-cell total">165,000</div>
+                <div class="amount-cell total">140,000</div>
+                <div class="amount-cell total">135,000</div>
+                <div class="amount-cell total">115,000</div>
+                <div class="amount-cell total">100,000</div>
+                <div class="amount-cell total bonus-col">140,000</div>
+                <div class="amount-cell total">150,000</div>
+
+                <!-- 支出行（10行） -->
+                <div class="row-label expense">今月-1 <span class="expense-row-number"></span></div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-20,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-15,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-18,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-12,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-8,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-15,000</div>
+                <div class="amount-cell expense bonus-col" onclick="editAmount(this)">-25,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-20,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-12,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-18,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-15,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-10,000</div>
+                <div class="amount-cell expense bonus-col" onclick="editAmount(this)">-8,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-22,000</div>
+
+                <div class="row-label expense">今月-2</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-15,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-10,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-12,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-8,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-5,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-8,000</div>
+                <div class="amount-cell expense bonus-col" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-15,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-8,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-10,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-12,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-5,000</div>
+                <div class="amount-cell expense bonus-col" onclick="editAmount(this)">-5,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-18,000</div>
+
+                <div class="row-label expense">今月-3</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-10,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-8,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-5,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-7,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-5,000</div>
+                <div class="amount-cell expense bonus-col" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-5,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-7,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-3,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense bonus-col" onclick="editAmount(this)">-7,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-10,000</div>
+
+                <!-- 支出行を追加するボタン -->
+                <div class="add-expense-row">
+                    <button class="add-btn" onclick="addExpenseRow()">+ 支出行を追加</button>
+                </div>
+
+                <!-- 支出合計 -->
+                <div class="row-label expense-total">支出合計</div>
+                <div class="amount-cell expense-total">-45,000</div>
+                <div class="amount-cell expense-total">-33,000</div>
+                <div class="amount-cell expense-total">-35,000</div>
+                <div class="amount-cell expense-total">-20,000</div>
+                <div class="amount-cell expense-total">-20,000</div>
+                <div class="amount-cell expense-total">-28,000</div>
+                <div class="amount-cell expense-total bonus-col">-25,000</div>
+                <div class="amount-cell expense-total">-35,000</div>
+                <div class="amount-cell expense-total">-25,000</div>
+                <div class="amount-cell expense-total">-35,000</div>
+                <div class="amount-cell expense-total">-30,000</div>
+                <div class="amount-cell expense-total">-15,000</div>
+                <div class="amount-cell expense-total bonus-col">-20,000</div>
+                <div class="amount-cell expense-total">-50,000</div>
+
+                <!-- 残高 -->
+                <div class="row-label balance">残高</div>
+                <div class="amount-cell balance">55,000</div>
+                <div class="amount-cell balance">47,000</div>
+                <div class="amount-cell balance">60,000</div>
+                <div class="amount-cell balance">80,000</div>
+                <div class="amount-cell balance">80,000</div>
+                <div class="amount-cell balance">82,000</div>
+                <div class="amount-cell balance bonus-col">145,000</div>
+                <div class="amount-cell balance">130,000</div>
+                <div class="amount-cell balance">115,000</div>
+                <div class="amount-cell balance">100,000</div>
+                <div class="amount-cell balance">85,000</div>
+                <div class="amount-cell balance">85,000</div>
+                <div class="amount-cell balance bonus-col">120,000</div>
+                <div class="amount-cell balance">100,000</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let expenseRowCount = 3;
+
+        function editAmount(cell) {
+            // 編集不可の計算項目をチェック
+            if (cell.classList.contains('total') || 
+                cell.classList.contains('expense-total') || 
+                cell.classList.contains('balance')) {
+                return;
+            }
+
+            const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.border = 'none';
+            input.style.background = '#e3f2fd';
+            input.style.textAlign = 'center';
+            input.style.fontSize = '13px';
+            input.style.padding = '5px';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = parseInt(input.value) || 0;
+                cell.innerHTML = formatAmount(value);
+                updateCalculations();
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveValue();
+                }
+            });
+        }
+
+        function formatAmount(amount) {
+            if (amount === 0) return '0';
+            return amount.toLocaleString();
+        }
+
+        function addExpenseRow() {
+            expenseRowCount++;
+            
+            // 支出行追加ボタンの前に新しい行を挿入
+            const addButton = document.querySelector('.add-expense-row');
+            
+            // 新しい行のラベル
+            const newLabel = document.createElement('div');
+            newLabel.className = 'row-label expense';
+            newLabel.textContent = `今月-${expenseRowCount}`;
+            
+            // 新しい行のセル（14ヶ月分）
+            const newCells = [];
+            for (let i = 0; i < 14; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'amount-cell expense';
+                if (i === 6 || i === 12) { // ボーナス月
+                    cell.classList.add('bonus-col');
+                }
+                cell.textContent = '0';
+                cell.onclick = function() { editAmount(this); };
+                newCells.push(cell);
+            }
+            
+            // DOMに挿入
+            addButton.parentNode.insertBefore(newLabel, addButton);
+            newCells.forEach(cell => {
+                addButton.parentNode.insertBefore(cell, addButton);
+            });
+            
+            updateCalculations();
+        }
+
+        function updateCalculations() {
+            // 実際のアプリでは、ここで月初合計、支出合計、残高を再計算
+            console.log('計算を更新中...');
+        }
+    </script>
+</body>
+</html>

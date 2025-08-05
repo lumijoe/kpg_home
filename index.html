@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家族家計簿</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .year-selector {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .year-selector select {
+            padding: 8px 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .budget-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0;
+        }
+
+        .table-header .row {
+            display: grid;
+            grid-template-columns: 150px repeat(14, 1fr);
+            gap: 1px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .table-header .cell {
+            padding: 15px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .table-header .cell.category {
+            text-align: left;
+            padding-left: 20px;
+            font-size: 14px;
+        }
+
+        .bonus-month {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
+        }
+
+        .table-body {
+            padding: 0;
+        }
+
+        .category-row {
+            display: grid;
+            grid-template-columns: 150px repeat(14, 1fr);
+            gap: 1px;
+            background: #e1e8ed;
+            margin-bottom: 1px;
+        }
+
+        .category-row:hover {
+            background: #d4edda;
+        }
+
+        .category-cell {
+            background: #f8f9fa;
+            padding: 15px 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+        }
+
+        .amount-cell {
+            background: white;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+        }
+
+        .amount-cell:hover {
+            background: #e3f2fd;
+            transform: translateY(-1px);
+        }
+
+        .amount-cell.income {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .amount-cell.expense {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .amount-cell.zero {
+            color: #95a5a6;
+        }
+
+        .amount-cell.bonus-col {
+            background: #fff3e0;
+        }
+
+        .amount-cell.bonus-col:hover {
+            background: #ffe0b2;
+        }
+
+        .add-category {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .summary {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .summary-item.income {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .summary-item.expense {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .summary-item.balance {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .summary-amount {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .table-header .row,
+            .category-row {
+                grid-template-columns: 120px repeat(14, minmax(60px, 1fr));
+            }
+            
+            .table-header .cell,
+            .amount-cell {
+                font-size: 12px;
+                padding: 10px 4px;
+            }
+            
+            .category-cell {
+                font-size: 12px;
+                padding-left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏠 家族家計簿</h1>
+        <div class="year-selector">
+            <label>年度:</label>
+            <select id="yearSelect">
+                <option value="2024">2024年</option>
+                <option value="2025" selected>2025年</option>
+                <option value="2026">2026年</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="budget-table">
+        <div class="table-header">
+            <div class="row">
+                <div class="cell category">項目</div>
+                <div class="cell">1月</div>
+                <div class="cell">2月</div>
+                <div class="cell">3月</div>
+                <div class="cell">4月</div>
+                <div class="cell">5月</div>
+                <div class="cell">6月</div>
+                <div class="cell bonus-month">夏ボーナス</div>
+                <div class="cell">7月</div>
+                <div class="cell">8月</div>
+                <div class="cell">9月</div>
+                <div class="cell">10月</div>
+                <div class="cell">11月</div>
+                <div class="cell bonus-month">冬ボーナス</div>
+                <div class="cell">12月</div>
+            </div>
+        </div>
+
+        <div class="table-body" id="tableBody">
+            <!-- 収入カテゴリ -->
+            <div class="category-row">
+                <div class="category-cell">💰 給与収入</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income bonus-col" onclick="editAmount(this)">400,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income bonus-col" onclick="editAmount(this)">400,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">250,000</div>
+            </div>
+
+            <div class="category-row">
+                <div class="category-cell">🍽️ 食費</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-80,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-75,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-85,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-78,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-82,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-79,000</div>
+                <div class="amount-cell expense bonus-col" onclick="editAmount(this)">-20,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-88,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-85,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-80,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-82,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-90,000</div>
+                <div class="amount-cell expense bonus-col" onclick="editAmount(this)">-25,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-95,000</div>
+            </div>
+
+            <div class="category-row">
+                <div class="category-cell">🏠 住居費</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell zero bonus-col" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+                <div class="amount-cell zero bonus-col" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-120,000</div>
+            </div>
+
+            <div class="category-row">
+                <div class="category-cell">💡 光熱費</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-15,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-18,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-14,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-12,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-10,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-8,000</div>
+                <div class="amount-cell zero bonus-col" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-25,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-28,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-15,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-12,000</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-20,000</div>
+                <div class="amount-cell zero bonus-col" onclick="editAmount(this)">0</div>
+                <div class="amount-cell expense" onclick="editAmount(this)">-22,000</div>
+            </div>
+
+            <div class="category-row">
+                <div class="category-cell">💰 貯金</div>
+                <div class="amount-cell income" onclick="editAmount(this)">50,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">45,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">40,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">55,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">48,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">52,000</div>
+                <div class="amount-cell income bonus-col" onclick="editAmount(this)">300,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">35,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">42,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">48,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">50,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">45,000</div>
+                <div class="amount-cell income bonus-col" onclick="editAmount(this)">250,000</div>
+                <div class="amount-cell income" onclick="editAmount(this)">40,000</div>
+            </div>
+        </div>
+
+        <div class="add-category">
+            <button class="add-btn" onclick="addCategory()">+ 項目を追加</button>
+        </div>
+    </div>
+
+    <div class="summary">
+        <div class="summary-item income">
+            <div class="summary-label">年間収入</div>
+            <div class="summary-amount">¥3,800,000</div>
+        </div>
+        <div class="summary-item expense">
+            <div class="summary-label">年間支出</div>
+            <div class="summary-amount">¥2,200,000</div>
+        </div>
+        <div class="summary-item balance">
+            <div class="summary-label">年間収支</div>
+            <div class="summary-amount">¥1,600,000</div>
+        </div>
+    </div>
+
+    <script>
+        function editAmount(cell) {
+            const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.border = 'none';
+            input.style.background = '#e3f2fd';
+            input.style.textAlign = 'center';
+            input.style.fontSize = '14px';
+            input.style.padding = '5px';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = parseInt(input.value) || 0;
+                cell.innerHTML = formatAmount(value);
+                updateCellClass(cell, value);
+                updateSummary();
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    saveValue();
+                }
+            });
+        }
+
+        function formatAmount(amount) {
+            if (amount === 0) return '0';
+            return amount.toLocaleString();
+        }
+
+        function updateCellClass(cell, value) {
+            cell.classList.remove('income', 'expense', 'zero');
+            if (value > 0) {
+                cell.classList.add('income');
+            } else if (value < 0) {
+                cell.classList.add('expense');
+            } else {
+                cell.classList.add('zero');
+            }
+        }
+
+        function addCategory() {
+            const categoryName = prompt('新しい項目名を入力してください:');
+            if (!categoryName) return;
+            
+            const tableBody = document.getElementById('tableBody');
+            const newRow = document.createElement('div');
+            newRow.className = 'category-row';
+            
+            let rowHTML = `<div class="category-cell">📝 ${categoryName}</div>`;
+            for (let i = 0; i < 14; i++) {
+                const isBonusCol = i === 6 || i === 12;
+                const bonusClass = isBonusCol ? 'bonus-col' : '';
+                rowHTML += `<div class="amount-cell zero ${bonusClass}" onclick="editAmount(this)">0</div>`;
+            }
+            
+            newRow.innerHTML = rowHTML;
+            tableBody.appendChild(newRow);
+        }
+
+        function updateSummary() {
+            // 簡単な集計ロジック（実際のアプリでは詳細な計算が必要）
+            console.log('集計を更新しました');
+        }
+
+        // 年度選択の処理
+        document.getElementById('yearSelect').addEventListener('change', function() {
+            const selectedYear = this.value;
+            console.log(`${selectedYear}年のデータを読み込み中...`);
+            // 実際のアプリでは、選択された年度のデータを読み込む
+        });
+    </script>
+</body>
+</html>
