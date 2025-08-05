@@ -730,7 +730,7 @@
             function saveValue() {
                 const value = parseInt(input.value) || 0;
                 cell.innerHTML = formatAmount(value);
-                updateCalculations();
+                updateColumnBalances();
             }
             
             input.addEventListener('blur', saveValue);
@@ -751,32 +751,52 @@
             
             // 支出行追加ボタンの前に新しい行を挿入
             const addButton = document.querySelector('.add-expense-row');
+            const tableBody = document.getElementById('tableBody');
             
             // 新しい行のラベル
             const newLabel = document.createElement('div');
             newLabel.className = 'row-label expense';
             newLabel.textContent = `今月-${expenseRowCount}`;
             
-            // 新しい行のセル（14ヶ月分）
-            const newCells = [];
+            // ラベルを追加ボタンの直前に挿入
+            tableBody.insertBefore(newLabel, addButton);
+            
+            // 新しい行のセル（14ヶ月分、各月3列構成）
             for (let i = 0; i < 14; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'amount-cell expense';
-                if (i === 6 || i === 12) { // ボーナス月
-                    cell.classList.add('bonus-col');
+                const cellGroup = document.createElement('div');
+                cellGroup.className = 'amount-cell-group';
+                
+                // ボーナス月の場合
+                if (i === 6 || i === 12) {
+                    cellGroup.classList.add('bonus-col');
                 }
-                cell.textContent = '0';
-                cell.onclick = function() { editAmount(this); };
-                newCells.push(cell);
+                
+                // 用途列
+                const purposeCell = document.createElement('div');
+                purposeCell.className = 'expense-purpose';
+                purposeCell.textContent = '-';
+                purposeCell.onclick = function() { editPurpose(this); };
+                
+                // 金額列
+                const amountCell = document.createElement('div');
+                amountCell.className = 'expense-amount';
+                amountCell.textContent = '0';
+                amountCell.onclick = function() { editAmount(this); };
+                
+                // 残高列
+                const balanceCell = document.createElement('div');
+                balanceCell.className = 'expense-balance';
+                balanceCell.textContent = '0';
+                
+                cellGroup.appendChild(purposeCell);
+                cellGroup.appendChild(amountCell);
+                cellGroup.appendChild(balanceCell);
+                
+                // 各月のセルグループを追加ボタンの直前に挿入
+                tableBody.insertBefore(cellGroup, addButton);
             }
             
-            // DOMに挿入
-            addButton.parentNode.insertBefore(newLabel, addButton);
-            newCells.forEach(cell => {
-                addButton.parentNode.insertBefore(cell, addButton);
-            });
-            
-            updateCalculations();
+            updateColumnBalances();
         }
 
         function editPurpose(cell) {
@@ -807,6 +827,49 @@
                     saveValue();
                 }
             });
+        }
+
+        function updateColumnBalances() {
+            // 各月（14列）について残高を計算
+            for (let monthIndex = 0; monthIndex < 14; monthIndex++) {
+                // 1. 繰越額を取得
+                const carryoverCells = document.querySelectorAll('.amount-cell.carryover');
+                let currentBalance = 0;
+                if (carryoverCells[monthIndex]) {
+                    const value = carryoverCells[monthIndex].textContent.replace(/[^-0-9]/g, '');
+                    currentBalance = parseInt(value) || 0;
+                }
+                
+                // 2. 今月+を加算
+                const incomeCells = document.querySelectorAll('.amount-cell.income');
+                if (incomeCells[monthIndex]) {
+                    const value = incomeCells[monthIndex].textContent.replace(/[^-0-9]/g, '');
+                    currentBalance += parseInt(value) || 0;
+                }
+                
+                // 3. 月初合計を更新
+                const totalCells = document.querySelectorAll('.amount-cell.total');
+                if (totalCells[monthIndex]) {
+                    totalCells[monthIndex].textContent = formatAmount(currentBalance);
+                }
+                
+                // 4. 各支出行の残高を順次計算
+                const expenseGroups = document.querySelectorAll('.amount-cell-group');
+                expenseGroups.forEach((group, groupIndex) => {
+                    // 該当する月のグループかチェック
+                    if (groupIndex % 14 === monthIndex) {
+                        const amountCell = group.children[1]; // 金額列
+                        const balanceCell = group.children[2]; // 残高列
+                        
+                        if (amountCell && balanceCell) {
+                            const expenseValue = amountCell.textContent.replace(/[^-0-9]/g, '');
+                            const expense = parseInt(expenseValue) || 0;
+                            currentBalance += expense; // 支出はマイナス値なので加算
+                            balanceCell.textContent = formatAmount(currentBalance);
+                        }
+                    }
+                });
+            }
         }
     </script>
 </body>
