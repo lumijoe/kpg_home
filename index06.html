@@ -343,12 +343,13 @@
         .mobile-amount-cell.balance { background: #f3e5f5; font-weight: 700; color: #7b1fa2; }
 
         .mobile-amount-cell-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: #ecf0f1;
             border-bottom: 1px solid #ecf0f1;
             border-left: 1px solid #ecf0f1;
-            background: #ecf0f1;
-            display: flex;
-            flex-direction: column;
-            min-height: 75px;
+            min-height: 50px;
         }
 
         .mobile-amount-cell-group.bonus-col {
@@ -360,13 +361,11 @@
             color: #d32f2f;
             font-size: 9px;
             text-align: center;
-            padding: 3px 2px;
+            padding: 8px 4px;
             cursor: pointer;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #e0e0e0;
         }
 
         .mobile-expense-amount {
@@ -374,14 +373,12 @@
             color: #d32f2f;
             font-weight: 500;
             text-align: center;
-            padding: 3px 2px;
+            padding: 8px 4px;
             font-size: 9px;
             cursor: pointer;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #e0e0e0;
         }
 
         .mobile-expense-balance {
@@ -389,21 +386,21 @@
             color: #7b1fa2;
             font-weight: 600;
             text-align: center;
-            padding: 3px 2px;
-            font-size: 8px;
-            flex: 1;
+            padding: 8px 4px;
+            font-size: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .mobile-expense-header {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
             background: #ecf0f1;
             border-bottom: 1px solid #bdc3c7;
             border-left: 1px solid #ecf0f1;
-            min-height: 40px;
+            min-height: 35px;
         }
 
         .mobile-expense-header.bonus-col {
@@ -413,15 +410,13 @@
         .mobile-expense-header-cell {
             background: #34495e;
             color: white;
-            padding: 3px 2px;
+            padding: 8px 4px;
             text-align: center;
             font-size: 8px;
             font-weight: 600;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #2c3e50;
         }
 
         .navigation {
@@ -999,15 +994,17 @@
                     </div>`;
                 }
 
-                // 支出行
+                // 支出行 - 各行ごとに3ヶ月分を横並びで表示
                 data.expenses.forEach((expense, expIndex) => {
                     html += `<div class="mobile-row-label expense">今月-${expIndex + 1}</div>`;
-                    for (let i = 0; i < 3; i++) {
-                        const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
+                    
+                    // 各月の3列構造を横並びで配置
+                    for (let monthIdx = 0; monthIdx < 3; monthIdx++) {
+                        const isBonus = (groupIndex === 2 && monthIdx === 0) || (groupIndex === 4 && monthIdx === 0);
                         html += `<div class="mobile-amount-cell-group ${isBonus ? 'bonus-col' : ''}">
-                            <div class="mobile-expense-purpose" onclick="editMobilePurpose(this)">${expense.purpose[i] || '-'}</div>
-                            <div class="mobile-expense-amount" onclick="editMobileAmount(this)">${expense.amount[i] || '0'}</div>
-                            <div class="mobile-expense-balance">${expense.balance[i] || '0'}</div>
+                            <div class="mobile-expense-purpose" onclick="editMobilePurpose(this)">${expense.purpose[monthIdx] || '-'}</div>
+                            <div class="mobile-expense-amount" onclick="editMobileAmount(this)">${expense.amount[monthIdx] || '0'}</div>
+                            <div class="mobile-expense-balance">${expense.balance[monthIdx] || '0'}</div>
                         </div>`;
                     }
                 });
