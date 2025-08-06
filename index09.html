@@ -916,7 +916,7 @@
                         </div>
                         <div class="modal-buttons">
                             <button class="modal-btn modal-btn-cancel" onclick="closeModal()">キャンセル</button>
-                            <button class="modal-btn modal-btn-add" id="addExpenseBtn">追加する</button>
+                            <button class="modal-btn modal-btn-add" id="addExpenseBtnModal">追加する</button>
                         </div>
                     </div>
                 </div>
@@ -940,7 +940,7 @@
                         </div>
                         <div class="modal-buttons">
                             <button class="modal-btn modal-btn-cancel" onclick="closeModal()">キャンセル</button>
-                            <button class="modal-btn modal-btn-add-income" id="addIncomeBtn">追加する</button>
+                            <button class="modal-btn modal-btn-add-income" id="addIncomeBtnModal">追加する</button>
                         </div>
                     </div>
                 </div>
@@ -1513,10 +1513,8 @@
         }
 
         // 追加ボタン機能
-        const addExpenseBtnMain = document.getElementById('addExpenseBtn');
+        const addBtnMain = document.getElementById('addExpenseBtn');
         const modalOverlay = document.getElementById('modalOverlay');
-        const addExpenseBtnModal = document.getElementById('addExpenseBtn');
-        const addIncomeBtnModal = document.getElementById('addIncomeBtn');
         const expenseDate = document.getElementById('expenseDate');
         const expensePurpose = document.getElementById('expensePurpose');
         const expenseAmount = document.getElementById('expenseAmount');
@@ -1535,9 +1533,10 @@
             incomeDate.value = dateString;
         }
 
-        // 追加ボタンクリック（メイン）
-        addExpenseBtnMain.addEventListener('click', function() {
+        // メインの追加ボタンクリック
+        addBtnMain.addEventListener('click', function() {
             setDefaultDate();
+            // フォームをクリア
             expensePurpose.value = '';
             expenseAmount.value = '';
             incomeSource.value = '';
@@ -1553,8 +1552,8 @@
             }
         });
 
-        // 支出を追加
-        addExpenseBtnModal.addEventListener('click', function() {
+        // 支出追加ボタンのイベントリスナー
+        document.getElementById('addExpenseBtnModal').addEventListener('click', function() {
             const date = new Date(expenseDate.value);
             const purpose = expensePurpose.value.trim();
             const amount = parseInt(expenseAmount.value);
@@ -1564,20 +1563,19 @@
                 return;
             }
 
-            // 月を特定（0-13のインデックス）
-            const monthIndex = date.getMonth(); // 0=1月, 1=2月, ...
+            // 月を特定（0-11のインデックス）
+            const monthIndex = date.getMonth();
             
-            // 年のチェック（2025年の場合のみ処理）
+            // 年のチェック
             if (date.getFullYear() !== 2025 || monthIndex > 11) {
                 alert('2025年1月〜12月の日付を選択してください');
                 return;
             }
 
-            // 既存の支出データで該当月にデータがあるか確認
+            // 既存の行で空きスロットを探す
             let targetExpenseRow = null;
             let emptySlotFound = false;
 
-            // 既存の行で空きスロット（'-'）を探す
             for (let i = 0; i < budgetData.expenses.length; i++) {
                 if (budgetData.expenses[i].purposes[monthIndex] === '-' || 
                     budgetData.expenses[i].purposes[monthIndex] === '') {
@@ -1612,8 +1610,8 @@
             showSuccessMessage('expense', monthIndex, purpose, amount);
         });
 
-        // 収入を追加
-        addIncomeBtnModal.addEventListener('click', function() {
+        // 収入追加ボタンのイベントリスナー
+        document.getElementById('addIncomeBtnModal').addEventListener('click', function() {
             const date = new Date(incomeDate.value);
             const source = incomeSource.value.trim();
             const amount = parseInt(incomeAmount.value);
@@ -1623,7 +1621,7 @@
                 return;
             }
 
-            // 月を特定（0-13のインデックス）
+            // 月を特定
             const monthIndex = date.getMonth();
             
             // 年のチェック
