@@ -148,12 +148,13 @@
         .amount-cell.balance { background: #f3e5f5; font-weight: 700; color: #7b1fa2; }
 
         .amount-cell-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: #ecf0f1;
             border-bottom: 1px solid #ecf0f1;
             border-left: 1px solid #ecf0f1;
-            background: #ecf0f1;
-            display: flex;
-            flex-direction: column;
-            min-height: 60px;
+            min-height: 40px;
         }
 
         .amount-cell-group.bonus-col {
@@ -165,13 +166,11 @@
             color: #d32f2f;
             font-size: 8px;
             text-align: center;
-            padding: 2px 1px;
+            padding: 6px 2px;
             cursor: pointer;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #e0e0e0;
         }
 
         .expense-amount {
@@ -179,14 +178,12 @@
             color: #d32f2f;
             font-weight: 500;
             text-align: center;
-            padding: 2px 1px;
+            padding: 6px 2px;
             font-size: 8px;
             cursor: pointer;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #e0e0e0;
         }
 
         .expense-balance {
@@ -194,21 +191,21 @@
             color: #7b1fa2;
             font-weight: 600;
             text-align: center;
-            padding: 2px 1px;
+            padding: 6px 2px;
             font-size: 7px;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .expense-header {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
             background: #ecf0f1;
             border-bottom: 1px solid #bdc3c7;
             border-left: 1px solid #ecf0f1;
-            min-height: 30px;
+            min-height: 25px;
         }
 
         .expense-header.bonus-col {
@@ -218,15 +215,13 @@
         .expense-header-cell {
             background: #34495e;
             color: white;
-            padding: 2px 1px;
+            padding: 6px 2px;
             text-align: center;
             font-size: 7px;
             font-weight: 600;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-bottom: 1px solid #2c3e50;
         }
 
         /* モバイル版 - スワイプ対応 */
