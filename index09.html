@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予備費管理 - ハイブリッド版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 10px;
+        }
+
+        .header {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 20px;
+        }
+
+        .year-info {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+
+        .budget-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* デスクトップ版 - 通常の横スクロール */
+        .desktop-view {
+            display: block;
+        }
+
+        .budget-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .budget-table {
+            min-width: 1120px;
+            width: 100%;
+        }
+
+        .month-header {
+            display: grid;
+            grid-template-columns: 80px repeat(14, 80px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .month-header .label {
+            padding: 10px 5px;
+            text-align: center;
+            background: #34495e;
+            color: white;
+            font-size: 11px;
+            position: sticky;
+            left: 0;
+            z-index: 10;
+        }
+
+        .month-header .month {
+            padding: 10px 2px;
+            text-align: center;
+            font-size: 9px;
+            border-left: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .month-header .month.bonus {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .table-body {
+            display: grid;
+            grid-template-columns: 80px repeat(14, 80px);
+        }
+
+        .row-label {
+            background: #ecf0f1;
+            padding: 8px 5px;
+            font-weight: 600;
+            font-size: 9px;
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        .row-label.carryover { background: #e8f5e8; color: #27ae60; }
+        .row-label.income { background: #e8f5e8; color: #27ae60; }
+        .row-label.total { background: #e1f5fe; color: #01579b; font-weight: 700; }
+        .row-label.expense { background: #ffebee; color: #c62828; }
+        .row-label.expense-total { background: #ffcdd2; color: #b71c1c; font-weight: 700; }
+        .row-label.balance { background: #f3e5f5; color: #4a148c; font-weight: 700; }
+
+        .amount-cell {
+            padding: 8px 2px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            border-left: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 30px;
+        }
+
+        .amount-cell:hover {
+            background: #e3f2fd;
+        }
+
+        .amount-cell.bonus-col {
+            background: #fff8e1;
+        }
+
+        .amount-cell.carryover { background: #f1f8e9; font-weight: 600; color: #388e3c; }
+        .amount-cell.income { background: #f1f8e9; font-weight: 600; color: #2e7d32; }
+        .amount-cell.total { background: #e0f2f1; font-weight: 700; color: #00695c; }
+        .amount-cell.expense { color: #d32f2f; font-weight: 500; }
+        .amount-cell.expense-total { background: #ffebee; font-weight: 700; color: #c62828; }
+        .amount-cell.balance { background: #f3e5f5; font-weight: 700; color: #7b1fa2; }
+
+        .amount-cell-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #ecf0f1;
+            border-left: 1px solid #ecf0f1;
+            min-height: 40px;
+        }
+
+        .amount-cell-group.bonus-col {
+            background: #ffe0b2;
+        }
+
+        .expense-purpose {
+            background: #ffebee;
+            color: #d32f2f;
+            font-size: 8px;
+            text-align: center;
+            padding: 6px 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expense-amount {
+            background: white;
+            color: #d32f2f;
+            font-weight: 500;
+            text-align: center;
+            padding: 6px 2px;
+            font-size: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expense-balance {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            font-weight: 600;
+            text-align: center;
+            padding: 6px 2px;
+            font-size: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expense-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+            border-left: 1px solid #ecf0f1;
+            min-height: 25px;
+        }
+
+        .expense-header.bonus-col {
+            background: #ffe0b2;
+        }
+
+        .expense-header-cell {
+            background: #34495e;
+            color: white;
+            padding: 6px 2px;
+            text-align: center;
+            font-size: 7px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* モバイル版 - スワイプ対応 */
+        .mobile-view {
+            display: none;
+        }
+
+        .swipe-container {
+            position: relative;
+            overflow: hidden;
+            height: 80vh;
+        }
+
+        .swipe-wrapper {
+            display: flex;
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+
+        .month-group {
+            min-width: 100%;
+            flex-shrink: 0;
+        }
+
+        .mobile-table {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .mobile-month-header {
+            display: grid;
+            grid-template-columns: 60px repeat(3, 1fr);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .mobile-month-header .label {
+            padding: 12px 4px;
+            text-align: center;
+            background: #34495e;
+            font-size: 10px;
+        }
+
+        .mobile-month-header .month {
+            padding: 12px 4px;
+            text-align: center;
+            font-size: 10px;
+            border-left: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .mobile-month-header .month.bonus {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .mobile-table-body {
+            display: grid;
+            grid-template-columns: 60px repeat(3, 1fr);
+        }
+
+        .mobile-row-label {
+            background: #ecf0f1;
+            padding: 10px 4px;
+            font-weight: 600;
+            font-size: 9px;
+            color: #2c3e50;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .mobile-row-label.carryover { background: #e8f5e8; color: #27ae60; }
+        .mobile-row-label.income { background: #e8f5e8; color: #27ae60; }
+        .mobile-row-label.total { background: #e1f5fe; color: #01579b; font-weight: 700; }
+        .mobile-row-label.expense { background: #ffebee; color: #c62828; }
+        .mobile-row-label.expense-total { background: #ffcdd2; color: #b71c1c; font-weight: 700; }
+        .mobile-row-label.balance { background: #f3e5f5; color: #4a148c; font-weight: 700; }
+
+        .mobile-amount-cell {
+            padding: 10px 4px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            border-left: 1px solid #ecf0f1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40px;
+        }
+
+        .mobile-amount-cell:hover {
+            background: #e3f2fd;
+        }
+
+        .mobile-amount-cell.bonus-col {
+            background: #fff8e1;
+        }
+
+        .mobile-amount-cell.carryover { background: #f1f8e9; font-weight: 600; color: #388e3c; }
+        .mobile-amount-cell.income { background: #f1f8e9; font-weight: 600; color: #2e7d32; }
+        .mobile-amount-cell.total { background: #e0f2f1; font-weight: 700; color: #00695c; }
+        .mobile-amount-cell.expense { color: #d32f2f; font-weight: 500; }
+        .mobile-amount-cell.expense-total { background: #ffebee; font-weight: 700; color: #c62828; }
+        .mobile-amount-cell.balance { background: #f3e5f5; font-weight: 700; color: #7b1fa2; }
+
+        .mobile-amount-cell-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #ecf0f1;
+            border-left: 1px solid #ecf0f1;
+            min-height: 50px;
+        }
+
+        .mobile-amount-cell-group.bonus-col {
+            background: #ffe0b2;
+        }
+
+        .mobile-expense-purpose {
+            background: #ffebee;
+            color: #d32f2f;
+            font-size: 9px;
+            text-align: center;
+            padding: 8px 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-expense-amount {
+            background: white;
+            color: #d32f2f;
+            font-weight: 500;
+            text-align: center;
+            padding: 8px 4px;
+            font-size: 9px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-expense-balance {
+            background: #f3e5f5;
+            color: #7b1fa2;
+            font-weight: 600;
+            text-align: center;
+            padding: 8px 4px;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-expense-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+            border-left: 1px solid #ecf0f1;
+            min-height: 35px;
+        }
+
+        .mobile-expense-header.bonus-col {
+            background: #ffe0b2;
+        }
+
+        .mobile-expense-header-cell {
+            background: #34495e;
+            color: white;
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navigation {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .nav-btn:not(:disabled):hover {
+            background: #2980b9;
+        }
+
+        .group-indicator {
+            text-align: center;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .group-dots {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+            justify-content: center;
+        }
+
+        .group-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #bdc3c7;
+            transition: all 0.3s ease;
+        }
+
+        .group-dot.active {
+            background: #3498db;
+            transform: scale(1.5);
+        }
+
+        .swipe-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            opacity: 0.8;
+            animation: swipeHint 3s ease-in-out infinite;
+        }
+
+        @keyframes swipeHint {
+            0%, 90%, 100% { opacity: 0.8; }
+            45% { opacity: 0.3; }
+        }
+
+        /* 追加ボタン */
+        .add-expense-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-expense-btn:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .add-expense-btn:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .add-expense-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* モーダル */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 0;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modal-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .modal-tab {
+            flex: 1;
+            padding: 16px;
+            background: transparent;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .modal-tab.active {
+            color: #667eea;
+            background: white;
+        }
+
+        .modal-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .modal-tab:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn-cancel {
+            background: #ecf0f1;
+            color: #7f8c8d;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #d5dbdd;
+        }
+
+        .modal-btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-btn-add-income {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+            color: white;
+        }
+
+        .modal-btn-add-income:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 184, 148, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .desktop-view {
+                display: none;
+            }
+            
+            .mobile-view {
+                display: block;
+            }
+            
+            body {
+                padding: 5px;
+            }
+            
+            .header {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .navigation {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>💰 予備費管理</h1>
+        <div class="year-info">2025年度 - ハイブリッド版（PC:横スクロール / スマホ:3ヶ月スワイプ）</div>
+    </div>
+
+    <!-- デスクトップ版 -->
+    <div class="budget-container desktop-view">
+        <div class="budget-scroll">
+            <div class="budget-table">
+                <!-- 月のヘッダー -->
+                <div class="month-header">
+                    <div class="label">項目</div>
+                    <div class="month">1月</div>
+                    <div class="month">2月</div>
+                    <div class="month">3月</div>
+                    <div class="month">4月</div>
+                    <div class="month">5月</div>
+                    <div class="month">6月</div>
+                    <div class="month bonus">夏ボ</div>
+                    <div class="month">7月</div>
+                    <div class="month">8月</div>
+                    <div class="month">9月</div>
+                    <div class="month">10月</div>
+                    <div class="month">11月</div>
+                    <div class="month bonus">冬ボ</div>
+                    <div class="month">12月</div>
+                </div>
+
+                <!-- テーブル本体 -->
+                <div class="table-body" id="tableBody">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- モバイル版 -->
+    <div class="budget-container mobile-view">
+        <div class="swipe-container" id="swipeContainer">
+            <div class="swipe-wrapper" id="swipeWrapper">
+                <!-- グループ1: 1-3月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month">1月</div>
+                            <div class="month">2月</div>
+                            <div class="month">3月</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody1">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グループ2: 4-6月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month">4月</div>
+                            <div class="month">5月</div>
+                            <div class="month">6月</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody2">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グループ3: 夏ボーナス-8月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month bonus">夏ボ</div>
+                            <div class="month">7月</div>
+                            <div class="month">8月</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody3">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グループ4: 9-11月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month">9月</div>
+                            <div class="month">10月</div>
+                            <div class="month">11月</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody4">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グループ5: 冬ボーナス-12月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month bonus">冬ボ</div>
+                            <div class="month">12月</div>
+                            <div class="month" style="opacity: 0.3;">-</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody5">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="swipe-hint" id="swipeHint">← スワイプで次の3ヶ月 →</div>
+        </div>
+    </div>
+
+    <!-- モバイル版ナビゲーション -->
+    <div class="navigation">
+        <button class="nav-btn" id="prevGroup">← 前の3ヶ月</button>
+        <div class="group-indicator">
+            <div id="groupTitle">グループ 1 (1-3月)</div>
+            <div class="group-dots" id="groupDots">
+                <div class="group-dot active"></div>
+                <div class="group-dot"></div>
+                <div class="group-dot"></div>
+                <div class="group-dot"></div>
+                <div class="group-dot"></div>
+            </div>
+        </div>
+        <button class="nav-btn" id="nextGroup">次の3ヶ月 →</button>
+    </div>
+
+    <!-- 追加ボタン -->
+    <button class="add-expense-btn" id="addExpenseBtn" title="支出行を追加">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
+
+    <!-- モーダル -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <!-- タブ -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" id="expenseTab" onclick="switchTab('expense')">
+                    💸 支出を追加
+                </button>
+                <button class="modal-tab" id="incomeTab" onclick="switchTab('income')">
+                    💰 収入を追加
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- 支出タブコンテンツ -->
+                <div class="tab-content active" id="expenseContent">
+                    <div class="modal-form">
+                        <div class="form-group">
+                            <label class="form-label">日付</label>
+                            <input type="date" class="form-input" id="expenseDate" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">用途</label>
+                            <input type="text" class="form-input" id="expensePurpose" 
+                                   placeholder="例: 教育費、医療費、食費など" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">金額（円）</label>
+                            <input type="number" class="form-input" id="expenseAmount" 
+                                   placeholder="例: 50000" />
+                        </div>
+                        <div class="modal-buttons">
+                            <button class="modal-btn modal-btn-cancel" onclick="closeModal()">キャンセル</button>
+                            <button class="modal-btn modal-btn-add" id="addExpenseBtn">追加する</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 収入タブコンテンツ -->
+                <div class="tab-content" id="incomeContent">
+                    <div class="modal-form">
+                        <div class="form-group">
+                            <label class="form-label">日付</label>
+                            <input type="date" class="form-input" id="incomeDate" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">収入源</label>
+                            <input type="text" class="form-input" id="incomeSource" 
+                                   placeholder="例: 臨時収入、副業、ボーナスなど" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">金額（円）</label>
+                            <input type="number" class="form-input" id="incomeAmount" 
+                                   placeholder="例: 100000" />
+                        </div>
+                        <div class="modal-buttons">
+                            <button class="modal-btn modal-btn-cancel" onclick="closeModal()">キャンセル</button>
+                            <button class="modal-btn modal-btn-add-income" id="addIncomeBtn">追加する</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 共通データモデル - PC/モバイル共通で使用
+        const budgetData = {
+            carryover: ['0'], // 1月の繰越のみ設定（他は自動計算）
+            income: ['100,000', '30,000', '50,000', '40,000', '20,000', '35,000', '400,000', '25,000', '15,000', '25,000', '20,000', '15,000', '400,000', '30,000'],
+            expenses: [
+                {
+                    purposes: ['食費', '日用品', '交通費', '医療費', '娯楽', '雑費', '旅行', '食費', '日用品', '交通費', '光熱費', '雑費', 'ギフト', '食費'],
+                    amounts: ['-20,000', '-15,000', '-18,000', '-12,000', '-8,000', '-15,000', '-250,000', '-20,000', '-12,000', '-18,000', '-15,000', '-10,000', '-80,000', '-22,000']
+                },
+                {
+                    purposes: ['衣服', '書籍', '外食', '歯医者', 'ジム', '交際費', '特別支出', '衣服', '雑費', '書籍', '保険', 'その他', '年末支出', 'その他'],
+                    amounts: ['-15,000', '-10,000', '-12,000', '-8,000', '-5,000', '-10,000', '-100,000', '-15,000', '-8,000', '-12,000', '-8,000', '-5,000', '-120,000', '-18,000']
+                }
+            ],
+            bonusMonths: [6, 12] // ボーナス月のインデックス（0ベース）
+        };
+
+        // 繰越金額を自動計算する関数
+        function calculateCarryovers() {
+            // 配列を14個に拡張
+            while (budgetData.carryover.length < 14) {
+                budgetData.carryover.push('0');
+            }
+            
+            // 2月以降の繰越を前月の残高から自動計算
+            for (let i = 1; i < 14; i++) {
+                // 前月の残高を計算
+                const prevCarry = parseInt(budgetData.carryover[i-1].replace(/,/g, '')) || 0;
+                const prevIncome = parseInt(budgetData.income[i-1].replace(/,/g, '')) || 0;
+                const prevTotal = prevCarry + prevIncome;
+                
+                let prevExpenseTotal = 0;
+                budgetData.expenses.forEach(expense => {
+                    const amount = parseInt(expense.amounts[i-1]?.replace(/[^-0-9]/g, '')) || 0;
+                    prevExpenseTotal += amount;
+                });
+                
+                const prevBalance = prevTotal + prevExpenseTotal;
+                
+                // 今月の繰越として設定
+                budgetData.carryover[i] = formatAmount(prevBalance);
+            }
+        }
+
+        // デスクトップ版データ生成
+        function generateDesktopData() {
+            // 繰越を自動計算
+            calculateCarryovers();
+            
+            const body = document.getElementById('tableBody');
+            if (!body) return;
+
+            let html = '';
+
+            // 繰越（自動計算済み）
+            html += '<div class="row-label carryover">繰越</div>';
+            budgetData.carryover.forEach((val, i) => {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                // 1月のみ編集可能、他は自動計算なので編集不可
+                if (i === 0) {
+                    html += `<div class="amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editAmount(this, 'carryover', ${i})">${val}</div>`;
+                } else {
+                    html += `<div class="amount-cell carryover ${isBonus ? 'bonus-col' : ''}" style="cursor: default; opacity: 0.8;">${val}</div>`;
+                }
+            });
+
+            // 今月+
+            html += '<div class="row-label income">今月+</div>';
+            budgetData.income.forEach((val, i) => {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                html += `<div class="amount-cell income ${isBonus ? 'bonus-col' : ''}" onclick="editAmount(this, 'income', ${i})">${val}</div>`;
+            });
+
+            // 月初合計
+            html += '<div class="row-label total">月初合計</div>';
+            budgetData.carryover.forEach((carryVal, i) => {
+                const carry = parseInt(carryVal.replace(/,/g, '')) || 0;
+                const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                const total = carry + income;
+                const isBonus = budgetData.bonusMonths.includes(i);
+                html += `<div class="amount-cell total ${isBonus ? 'bonus-col' : ''}">${formatAmount(total)}</div>`;
+            });
+
+            // 支出ヘッダー
+            html += '<div class="row-label expense">支出項目</div>';
+            for (let i = 0; i < 14; i++) {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                html += `<div class="expense-header ${isBonus ? 'bonus-col' : ''}">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>`;
+            }
+
+            // 支出行 - データから動的に生成
+            budgetData.expenses.forEach((expense, expIndex) => {
+                html += `<div class="row-label expense">今月-${expIndex + 1}</div>`;
+                
+                expense.purposes.forEach((purpose, monthIdx) => {
+                    const isBonus = budgetData.bonusMonths.includes(monthIdx);
+                    const amount = parseInt(expense.amounts[monthIdx].replace(/[^-0-9]/g, '')) || 0;
+                    
+                    // 残高計算
+                    const carry = parseInt(budgetData.carryover[monthIdx].replace(/,/g, '')) || 0;
+                    const income = parseInt(budgetData.income[monthIdx].replace(/,/g, '')) || 0;
+                    const monthTotal = carry + income;
+                    
+                    let totalExpense = 0;
+                    for (let i = 0; i <= expIndex; i++) {
+                        if (i < expIndex) {
+                            totalExpense += parseInt(budgetData.expenses[i].amounts[monthIdx].replace(/[^-0-9]/g, '')) || 0;
+                        } else {
+                            totalExpense += amount;
+                        }
+                    }
+                    const balance = monthTotal + totalExpense;
+                    
+                    html += `<div class="amount-cell-group ${isBonus ? 'bonus-col' : ''}">
+                        <div class="expense-purpose" onclick="editPurpose(this, ${expIndex}, ${monthIdx})">${purpose}</div>
+                        <div class="expense-amount" onclick="editAmount(this, 'expense', ${monthIdx}, ${expIndex})">${expense.amounts[monthIdx]}</div>
+                        <div class="expense-balance">${formatAmount(balance)}</div>
+                    </div>`;
+                });
+            });
+
+            // 支出合計
+            html += '<div class="row-label expense-total">支出合計</div>';
+            for (let i = 0; i < 14; i++) {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                let total = 0;
+                budgetData.expenses.forEach(expense => {
+                    const amount = parseInt(expense.amounts[i]?.replace(/[^-0-9]/g, '')) || 0;
+                    total += amount;
+                });
+                html += `<div class="amount-cell expense-total ${isBonus ? 'bonus-col' : ''}">${formatAmount(total)}</div>`;
+            }
+
+            // 残高
+            html += '<div class="row-label balance">残高</div>';
+            for (let i = 0; i < 14; i++) {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                const carry = parseInt(budgetData.carryover[i].replace(/,/g, '')) || 0;
+                const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                const monthTotal = carry + income;
+                
+                let totalExpense = 0;
+                budgetData.expenses.forEach(expense => {
+                    const amount = parseInt(expense.amounts[i]?.replace(/[^-0-9]/g, '')) || 0;
+                    totalExpense += amount;
+                });
+                
+                const balance = monthTotal + totalExpense;
+                html += `<div class="amount-cell balance ${isBonus ? 'bonus-col' : ''}">${formatAmount(balance)}</div>`;
+            }
+
+            body.innerHTML = html;
+            
+            // 削除リスナーを追加
+            addDeleteListeners();
+        }
+
+        // モバイル版データ生成
+        function generateMobileData() {
+            // 繰越を自動計算
+            calculateCarryovers();
+            
+            const mobileGroups = [
+                { start: 0, end: 3, bodyId: 'mobileTableBody1' },
+                { start: 3, end: 6, bodyId: 'mobileTableBody2' },
+                { start: 6, end: 9, bodyId: 'mobileTableBody3' },
+                { start: 9, end: 12, bodyId: 'mobileTableBody4' },
+                { start: 12, end: 14, bodyId: 'mobileTableBody5' }
+            ];
+
+            mobileGroups.forEach(group => {
+                const body = document.getElementById(group.bodyId);
+                if (!body) return;
+
+                let html = '';
+                const monthCount = group.end - group.start;
+
+                // 繰越（自動計算済み）
+                html += '<div class="mobile-row-label carryover">繰越</div>';
+                for (let i = group.start; i < group.end; i++) {
+                    if (i < budgetData.carryover.length) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        // 1月のみ編集可能
+                        if (i === 0) {
+                            html += `<div class="mobile-amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editMobileAmount(this, 'carryover', ${i})">${budgetData.carryover[i]}</div>`;
+                        } else {
+                            html += `<div class="mobile-amount-cell carryover ${isBonus ? 'bonus-col' : ''}" style="cursor: default; opacity: 0.8;">${budgetData.carryover[i]}</div>`;
+                        }
+                    } else {
+                        html += `<div class="mobile-amount-cell carryover" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+                if (monthCount < 3) {
+                    for (let j = 0; j < 3 - monthCount; j++) {
+                        html += `<div class="mobile-amount-cell carryover" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+
+                // 今月+
+                html += '<div class="mobile-row-label income">今月+</div>';
+                for (let i = group.start; i < group.end; i++) {
+                    if (i < budgetData.income.length) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        html += `<div class="mobile-amount-cell income ${isBonus ? 'bonus-col' : ''}" onclick="editMobileAmount(this, 'income', ${i})">${budgetData.income[i]}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell income" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+                if (monthCount < 3) {
+                    for (let j = 0; j < 3 - monthCount; j++) {
+                        html += `<div class="mobile-amount-cell income" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+
+                // 月初合計
+                html += '<div class="mobile-row-label total">月初合計</div>';
+                for (let i = group.start; i < group.end; i++) {
+                    if (i < budgetData.carryover.length) {
+                        const carry = parseInt(budgetData.carryover[i].replace(/,/g, '')) || 0;
+                        const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                        const total = carry + income;
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        html += `<div class="mobile-amount-cell total ${isBonus ? 'bonus-col' : ''}">${formatAmount(total)}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell total" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+                if (monthCount < 3) {
+                    for (let j = 0; j < 3 - monthCount; j++) {
+                        html += `<div class="mobile-amount-cell total" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+
+                // 支出ヘッダー
+                html += '<div class="mobile-row-label expense">支出項目</div>';
+                for (let i = group.start; i < Math.min(group.end, group.start + 3); i++) {
+                    if (i < 14) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        html += `<div class="mobile-expense-header ${isBonus ? 'bonus-col' : ''}">
+                            <div class="mobile-expense-header-cell">用途</div>
+                            <div class="mobile-expense-header-cell">金額</div>
+                            <div class="mobile-expense-header-cell">残高</div>
+                        </div>`;
+                    } else {
+                        html += `<div class="mobile-expense-header" style="opacity: 0.3;">
+                            <div class="mobile-expense-header-cell">-</div>
+                            <div class="mobile-expense-header-cell">-</div>
+                            <div class="mobile-expense-header-cell">-</div>
+                        </div>`;
+                    }
+                }
+
+                // 支出行
+                budgetData.expenses.forEach((expense, expIndex) => {
+                    html += `<div class="mobile-row-label expense">今月-${expIndex + 1}</div>`;
+                    
+                    for (let i = group.start; i < Math.min(group.end, group.start + 3); i++) {
+                        if (i < expense.purposes.length) {
+                            const isBonus = budgetData.bonusMonths.includes(i);
+                            const amount = parseInt(expense.amounts[i].replace(/[^-0-9]/g, '')) || 0;
+                            
+                            // 残高計算
+                            const carry = parseInt(budgetData.carryover[i].replace(/,/g, '')) || 0;
+                            const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                            const monthTotal = carry + income;
+                            
+                            let totalExpense = 0;
+                            for (let j = 0; j <= expIndex; j++) {
+                                if (j < expIndex) {
+                                    totalExpense += parseInt(budgetData.expenses[j].amounts[i].replace(/[^-0-9]/g, '')) || 0;
+                                } else {
+                                    totalExpense += amount;
+                                }
+                            }
+                            const balance = monthTotal + totalExpense;
+                            
+                            html += `<div class="mobile-amount-cell-group ${isBonus ? 'bonus-col' : ''}">
+                                <div class="mobile-expense-purpose" onclick="editMobilePurpose(this, ${expIndex}, ${i})">${expense.purposes[i]}</div>
+                                <div class="mobile-expense-amount" onclick="editMobileAmount(this, 'expense', ${i}, ${expIndex})">${expense.amounts[i]}</div>
+                                <div class="mobile-expense-balance">${formatAmount(balance)}</div>
+                            </div>`;
+                        } else {
+                            html += `<div class="mobile-amount-cell-group" style="opacity: 0.3;">
+                                <div class="mobile-expense-purpose">-</div>
+                                <div class="mobile-expense-amount">-</div>
+                                <div class="mobile-expense-balance">-</div>
+                            </div>`;
+                        }
+                    }
+                });
+
+                // 支出合計
+                html += '<div class="mobile-row-label expense-total">支出合計</div>';
+                for (let i = group.start; i < Math.min(group.end, group.start + 3); i++) {
+                    if (i < 14) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        let total = 0;
+                        budgetData.expenses.forEach(expense => {
+                            const amount = parseInt(expense.amounts[i]?.replace(/[^-0-9]/g, '')) || 0;
+                            total += amount;
+                        });
+                        html += `<div class="mobile-amount-cell expense-total ${isBonus ? 'bonus-col' : ''}">${formatAmount(total)}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell expense-total" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+
+                // 残高
+                html += '<div class="mobile-row-label balance">残高</div>';
+                for (let i = group.start; i < Math.min(group.end, group.start + 3); i++) {
+                    if (i < 14) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        const carry = parseInt(budgetData.carryover[i].replace(/,/g, '')) || 0;
+                        const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                        const monthTotal = carry + income;
+                        
+                        let totalExpense = 0;
+                        budgetData.expenses.forEach(expense => {
+                            const amount = parseInt(expense.amounts[i]?.replace(/[^-0-9]/g, '')) || 0;
+                            totalExpense += amount;
+                        });
+                        
+                        const balance = monthTotal + totalExpense;
+                        html += `<div class="mobile-amount-cell balance ${isBonus ? 'bonus-col' : ''}">${formatAmount(balance)}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell balance" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+
+                body.innerHTML = html;
+            });
+            
+            // 削除リスナーを追加
+            addDeleteListeners();
+        }
+
+        // 編集機能（データモデル更新版）
+        function editAmount(cell, type, monthIndex, expenseIndex) {
+            // 繰越の編集は1月のみ許可
+            if (type === 'carryover' && monthIndex !== 0) {
+                return;
+            }
+            
+            const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.fontSize = '10px';
+            input.style.padding = '2px';
+            input.style.border = '1px solid #3498db';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = parseInt(input.value) || 0;
+                const formattedValue = formatAmount(value);
+                
+                // データモデルを更新
+                if (type === 'carryover') {
+                    budgetData.carryover[monthIndex] = formattedValue;
+                } else if (type === 'income') {
+                    budgetData.income[monthIndex] = formattedValue;
+                } else if (type === 'expense' && expenseIndex !== undefined) {
+                    budgetData.expenses[expenseIndex].amounts[monthIndex] = formattedValue;
+                }
+                
+                // 両方のビューを再生成
+                generateDesktopData();
+                generateMobileData();
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveValue();
+            });
+        }
+
+        function editPurpose(cell, expenseIndex, monthIndex) {
+            const currentValue = cell.textContent;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentValue;
+            input.style.width = '100%';
+            input.style.fontSize = '8px';
+            input.style.padding = '2px';
+            input.style.border = '1px solid #3498db';
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+            
+            function saveValue() {
+                const value = input.value.trim() || '-';
+                
+                // データモデルを更新
+                budgetData.expenses[expenseIndex].purposes[monthIndex] = value;
+                
+                // 両方のビューを再生成
+                generateDesktopData();
+                generateMobileData();
+            }
+            
+            input.addEventListener('blur', saveValue);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveValue();
+            });
+        }
+
+        function editMobileAmount(cell, type, monthIndex, expenseIndex) {
+            // 繰越の編集は1月のみ許可
+            if (type === 'carryover' && monthIndex !== 0) {
+                return;
+            }
+            editAmount(cell, type, monthIndex, expenseIndex);
+        }
+
+        function editMobilePurpose(cell, expenseIndex, monthIndex) {
+            editPurpose(cell, expenseIndex, monthIndex);
+        }
+
+        function formatAmount(amount) {
+            if (amount === 0) return '0';
+            const prefix = amount < 0 ? '-' : '';
+            return prefix + Math.abs(amount).toLocaleString();
+        }
+
+        // スワイプ機能
+        let currentGroup = 0;
+        const totalGroups = 5;
+        const groupNames = [
+            'グループ 1 (1-3月)',
+            'グループ 2 (4-6月)', 
+            'グループ 3 (夏ボ-8月)',
+            'グループ 4 (9-11月)',
+            'グループ 5 (冬ボ-12月)'
+        ];
+
+        function moveToGroup(groupIndex) {
+            if (groupIndex < 0 || groupIndex >= totalGroups) return;
+            
+            currentGroup = groupIndex;
+            const wrapper = document.getElementById('swipeWrapper');
+            wrapper.style.transform = `translateX(-${groupIndex * 100}%)`;
+            
+            updateNavigation();
+        }
+
+        function updateNavigation() {
+            document.getElementById('groupTitle').textContent = groupNames[currentGroup];
+            
+            const dots = document.querySelectorAll('.group-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentGroup);
+            });
+            
+            document.getElementById('prevGroup').disabled = currentGroup === 0;
+            document.getElementById('nextGroup').disabled = currentGroup === totalGroups - 1;
+            
+            if (currentGroup > 0) {
+                const hint = document.getElementById('swipeHint');
+                if (hint) hint.style.display = 'none';
+            }
+        }
+
+        // スワイプイベント
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+
+        const container = document.getElementById('swipeContainer');
+
+        container.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+        });
+
+        container.addEventListener('touchmove', function(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            currentX = e.touches[0].clientX;
+        });
+
+        container.addEventListener('touchend', function(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const deltaX = startX - currentX;
+            const threshold = 50;
+            
+            if (deltaX > threshold && currentGroup < totalGroups - 1) {
+                moveToGroup(currentGroup + 1);
+            } else if (deltaX < -threshold && currentGroup > 0) {
+                moveToGroup(currentGroup - 1);
+            }
+        });
+
+        // ナビゲーションボタン
+        const prevBtn = document.getElementById('prevGroup');
+        const nextBtn = document.getElementById('nextGroup');
+        
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (currentGroup > 0) moveToGroup(currentGroup - 1);
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (currentGroup < totalGroups - 1) moveToGroup(currentGroup + 1);
+            });
+        }
+
+        // キーボードイベント
+        document.addEventListener('keydown', function(e) {
+            if (window.innerWidth <= 768) {
+                if (e.key === 'ArrowLeft' && currentGroup > 0) {
+                    moveToGroup(currentGroup - 1);
+                } else if (e.key === 'ArrowRight' && currentGroup < totalGroups - 1) {
+                    moveToGroup(currentGroup + 1);
+                }
+            }
+        });
+
+        // 初期化
+        window.addEventListener('DOMContentLoaded', function() {
+            generateDesktopData();
+            generateMobileData();
+            moveToGroup(0);
+        });
+
+        // タブ切り替え機能
+        function switchTab(tabName) {
+            // タブボタンの切り替え
+            document.querySelectorAll('.modal-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (tabName === 'expense') {
+                document.getElementById('expenseTab').classList.add('active');
+                document.getElementById('expenseContent').classList.add('active');
+            } else {
+                document.getElementById('incomeTab').classList.add('active');
+                document.getElementById('incomeContent').classList.add('active');
+            }
+        }
+
+        // モーダルを閉じる
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        // 追加ボタン機能
+        const addExpenseBtnMain = document.getElementById('addExpenseBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const addExpenseBtnModal = document.getElementById('addExpenseBtn');
+        const addIncomeBtnModal = document.getElementById('addIncomeBtn');
+        const expenseDate = document.getElementById('expenseDate');
+        const expensePurpose = document.getElementById('expensePurpose');
+        const expenseAmount = document.getElementById('expenseAmount');
+        const incomeDate = document.getElementById('incomeDate');
+        const incomeSource = document.getElementById('incomeSource');
+        const incomeAmount = document.getElementById('incomeAmount');
+
+        // 今日の日付をデフォルトで設定
+        function setDefaultDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const dateString = `${year}-${month}-${day}`;
+            expenseDate.value = dateString;
+            incomeDate.value = dateString;
+        }
+
+        // 追加ボタンクリック（メイン）
+        addExpenseBtnMain.addEventListener('click', function() {
+            setDefaultDate();
+            expensePurpose.value = '';
+            expenseAmount.value = '';
+            incomeSource.value = '';
+            incomeAmount.value = '';
+            switchTab('expense'); // デフォルトで支出タブを表示
+            modalOverlay.classList.add('active');
+        });
+
+        // モーダル外クリックで閉じる
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        // 支出を追加
+        addExpenseBtnModal.addEventListener('click', function() {
+            const date = new Date(expenseDate.value);
+            const purpose = expensePurpose.value.trim();
+            const amount = parseInt(expenseAmount.value);
+
+            if (!expenseDate.value || !purpose || !amount) {
+                alert('すべての項目を入力してください');
+                return;
+            }
+
+            // 月を特定（0-13のインデックス）
+            const monthIndex = date.getMonth(); // 0=1月, 1=2月, ...
+            
+            // 年のチェック（2025年の場合のみ処理）
+            if (date.getFullYear() !== 2025 || monthIndex > 11) {
+                alert('2025年1月〜12月の日付を選択してください');
+                return;
+            }
+
+            // 既存の支出データで該当月にデータがあるか確認
+            let targetExpenseRow = null;
+            let emptySlotFound = false;
+
+            // 既存の行で空きスロット（'-'）を探す
+            for (let i = 0; i < budgetData.expenses.length; i++) {
+                if (budgetData.expenses[i].purposes[monthIndex] === '-' || 
+                    budgetData.expenses[i].purposes[monthIndex] === '') {
+                    targetExpenseRow = i;
+                    emptySlotFound = true;
+                    break;
+                }
+            }
+
+            // 空きスロットがない場合、新しい行を作成
+            if (!emptySlotFound) {
+                const newRow = {
+                    purposes: Array(14).fill('-'),
+                    amounts: Array(14).fill('0')
+                };
+                budgetData.expenses.push(newRow);
+                targetExpenseRow = budgetData.expenses.length - 1;
+            }
+
+            // データを設定
+            budgetData.expenses[targetExpenseRow].purposes[monthIndex] = purpose;
+            budgetData.expenses[targetExpenseRow].amounts[monthIndex] = formatAmount(-Math.abs(amount));
+
+            // ビューを再生成
+            generateDesktopData();
+            generateMobileData();
+
+            // モーダルを閉じる
+            closeModal();
+
+            // 成功メッセージ
+            showSuccessMessage('expense', monthIndex, purpose, amount);
+        });
+
+        // 収入を追加
+        addIncomeBtnModal.addEventListener('click', function() {
+            const date = new Date(incomeDate.value);
+            const source = incomeSource.value.trim();
+            const amount = parseInt(incomeAmount.value);
+
+            if (!incomeDate.value || !source || !amount) {
+                alert('すべての項目を入力してください');
+                return;
+            }
+
+            // 月を特定（0-13のインデックス）
+            const monthIndex = date.getMonth();
+            
+            // 年のチェック
+            if (date.getFullYear() !== 2025 || monthIndex > 11) {
+                alert('2025年1月〜12月の日付を選択してください');
+                return;
+            }
+
+            // 既存の収入に加算
+            const currentIncome = parseInt(budgetData.income[monthIndex].replace(/,/g, '')) || 0;
+            const newIncome = currentIncome + amount;
+            budgetData.income[monthIndex] = formatAmount(newIncome);
+
+            // ビューを再生成
+            generateDesktopData();
+            generateMobileData();
+
+            // モーダルを閉じる
+            closeModal();
+
+            // 成功メッセージ
+            showSuccessMessage('income', monthIndex, source, amount);
+        });
+
+        // 成功メッセージを表示
+        function showSuccessMessage(type, monthIndex, description, amount) {
+            const btn = document.getElementById('addExpenseBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '✓';
+            
+            if (type === 'expense') {
+                btn.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+            } else {
+                btn.style.background = 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)';
+            }
+            
+            const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                bottom: 90px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'expense' ? 'rgba(231, 76, 60, 0.9)' : 'rgba(0, 184, 148, 0.9)'};
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: fadeInOut 2s ease;
+            `;
+            
+            if (type === 'expense') {
+                message.textContent = `${monthNames[monthIndex]}に支出「${description}」¥${amount.toLocaleString()}を追加しました`;
+            } else {
+                message.textContent = `${monthNames[monthIndex]}に収入「${description}」¥${amount.toLocaleString()}を追加しました`;
+            }
+            
+            document.body.appendChild(message);
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+                message.remove();
+            }, 2000);
+        }
+
+        // 支出行を削除する機能（個別のセルを長押しで削除）
+        function addDeleteListeners() {
+            document.querySelectorAll('.expense-purpose, .mobile-expense-purpose').forEach(cell => {
+                let deleteTimer;
+                
+                cell.addEventListener('mousedown', function(e) {
+                    const purpose = e.target.textContent;
+                    if (purpose && purpose !== '-') {
+                        deleteTimer = setTimeout(() => {
+                            if (confirm(`「${purpose}」を削除しますか？`)) {
+                                // データの位置を特定して削除
+                                const cellElement = e.target;
+                                // onclick属性から情報を取得するか、データ属性を使用
+                                cellElement.textContent = '-';
+                                // 対応する金額も0に
+                                const amountCell = cellElement.nextElementSibling;
+                                if (amountCell) {
+                                    amountCell.textContent = '0';
+                                }
+                                generateDesktopData();
+                                generateMobileData();
+                            }
+                        }, 1500); // 1.5秒長押し
+                    }
+                });
+
+                cell.addEventListener('mouseup', () => clearTimeout(deleteTimer));
+                cell.addEventListener('mouseleave', () => clearTimeout(deleteTimer));
+                
+                // タッチデバイス対応
+                cell.addEventListener('touchstart', function(e) {
+                    const purpose = e.target.textContent;
+                    if (purpose && purpose !== '-') {
+                        deleteTimer = setTimeout(() => {
+                            if (confirm(`「${purpose}」を削除しますか？`)) {
+                                e.target.textContent = '-';
+                                const amountCell = e.target.nextElementSibling;
+                                if (amountCell) {
+                                    amountCell.textContent = '0';
+                                }
+                                generateDesktopData();
+                                generateMobileData();
+                            }
+                        }, 1500);
+                    }
+                });
+                
+                cell.addEventListener('touchend', () => clearTimeout(deleteTimer));
+                cell.addEventListener('touchcancel', () => clearTimeout(deleteTimer));
+            });
+        }
+    </script>
+</body>
+</html>
