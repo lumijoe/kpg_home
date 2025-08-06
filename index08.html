@@ -489,6 +489,166 @@
             45% { opacity: 0.3; }
         }
 
+        /* 追加ボタン */
+        .add-expense-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-expense-btn:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .add-expense-btn:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .add-expense-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* モーダル */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn-cancel {
+            background: #ecf0f1;
+            color: #7f8c8d;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #d5dbdd;
+        }
+
+        .modal-btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .desktop-view {
@@ -655,10 +815,44 @@
         <button class="nav-btn" id="nextGroup">次の3ヶ月 →</button>
     </div>
 
+    <!-- 追加ボタン -->
+    <button class="add-expense-btn" id="addExpenseBtn" title="支出行を追加">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
+
+    <!-- モーダル -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">💸 支出を追加</div>
+            <div class="modal-form">
+                <div class="form-group">
+                    <label class="form-label">日付</label>
+                    <input type="date" class="form-input" id="expenseDate" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">用途</label>
+                    <input type="text" class="form-input" id="expensePurpose" 
+                           placeholder="例: 教育費、医療費、食費など" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">金額（円）</label>
+                    <input type="number" class="form-input" id="expenseAmount" 
+                           placeholder="例: 50000" />
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-cancel" id="modalCancel">キャンセル</button>
+                    <button class="modal-btn modal-btn-add" id="modalAdd">追加する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // 共通データモデル - PC/モバイル共通で使用
         const budgetData = {
-            carryover: ['0', '50,000', '45,000', '60,000', '80,000', '75,000', '90,000', '140,000', '125,000', '110,000', '95,000', '85,000', '70,000', '120,000'],
+            carryover: ['0'], // 1月の繰越のみ設定（他は自動計算）
             income: ['100,000', '30,000', '50,000', '40,000', '20,000', '35,000', '400,000', '25,000', '15,000', '25,000', '20,000', '15,000', '400,000', '30,000'],
             expenses: [
                 {
@@ -673,18 +867,53 @@
             bonusMonths: [6, 12] // ボーナス月のインデックス（0ベース）
         };
 
+        // 繰越金額を自動計算する関数
+        function calculateCarryovers() {
+            // 配列を14個に拡張
+            while (budgetData.carryover.length < 14) {
+                budgetData.carryover.push('0');
+            }
+            
+            // 2月以降の繰越を前月の残高から自動計算
+            for (let i = 1; i < 14; i++) {
+                // 前月の残高を計算
+                const prevCarry = parseInt(budgetData.carryover[i-1].replace(/,/g, '')) || 0;
+                const prevIncome = parseInt(budgetData.income[i-1].replace(/,/g, '')) || 0;
+                const prevTotal = prevCarry + prevIncome;
+                
+                let prevExpenseTotal = 0;
+                budgetData.expenses.forEach(expense => {
+                    const amount = parseInt(expense.amounts[i-1]?.replace(/[^-0-9]/g, '')) || 0;
+                    prevExpenseTotal += amount;
+                });
+                
+                const prevBalance = prevTotal + prevExpenseTotal;
+                
+                // 今月の繰越として設定
+                budgetData.carryover[i] = formatAmount(prevBalance);
+            }
+        }
+
         // デスクトップ版データ生成
         function generateDesktopData() {
+            // 繰越を自動計算
+            calculateCarryovers();
+            
             const body = document.getElementById('tableBody');
             if (!body) return;
 
             let html = '';
 
-            // 繰越
+            // 繰越（自動計算済み）
             html += '<div class="row-label carryover">繰越</div>';
             budgetData.carryover.forEach((val, i) => {
                 const isBonus = budgetData.bonusMonths.includes(i);
-                html += `<div class="amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editAmount(this, 'carryover', ${i})">${val}</div>`;
+                // 1月のみ編集可能、他は自動計算なので編集不可
+                if (i === 0) {
+                    html += `<div class="amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editAmount(this, 'carryover', ${i})">${val}</div>`;
+                } else {
+                    html += `<div class="amount-cell carryover ${isBonus ? 'bonus-col' : ''}" style="cursor: default; opacity: 0.8;">${val}</div>`;
+                }
             });
 
             // 今月+
@@ -777,10 +1006,16 @@
             }
 
             body.innerHTML = html;
+            
+            // 削除リスナーを追加
+            addDeleteListeners();
         }
 
         // モバイル版データ生成
         function generateMobileData() {
+            // 繰越を自動計算
+            calculateCarryovers();
+            
             const mobileGroups = [
                 { start: 0, end: 3, bodyId: 'mobileTableBody1' },
                 { start: 3, end: 6, bodyId: 'mobileTableBody2' },
@@ -796,12 +1031,17 @@
                 let html = '';
                 const monthCount = group.end - group.start;
 
-                // 繰越
+                // 繰越（自動計算済み）
                 html += '<div class="mobile-row-label carryover">繰越</div>';
                 for (let i = group.start; i < group.end; i++) {
                     if (i < budgetData.carryover.length) {
                         const isBonus = budgetData.bonusMonths.includes(i);
-                        html += `<div class="mobile-amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editMobileAmount(this, 'carryover', ${i})">${budgetData.carryover[i]}</div>`;
+                        // 1月のみ編集可能
+                        if (i === 0) {
+                            html += `<div class="mobile-amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editMobileAmount(this, 'carryover', ${i})">${budgetData.carryover[i]}</div>`;
+                        } else {
+                            html += `<div class="mobile-amount-cell carryover ${isBonus ? 'bonus-col' : ''}" style="cursor: default; opacity: 0.8;">${budgetData.carryover[i]}</div>`;
+                        }
                     } else {
                         html += `<div class="mobile-amount-cell carryover" style="opacity: 0.3;">-</div>`;
                     }
@@ -945,10 +1185,18 @@
 
                 body.innerHTML = html;
             });
+            
+            // 削除リスナーを追加
+            addDeleteListeners();
         }
 
         // 編集機能（データモデル更新版）
         function editAmount(cell, type, monthIndex, expenseIndex) {
+            // 繰越の編集は1月のみ許可
+            if (type === 'carryover' && monthIndex !== 0) {
+                return;
+            }
+            
             const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
             const input = document.createElement('input');
             input.type = 'number';
@@ -1020,6 +1268,10 @@
         }
 
         function editMobileAmount(cell, type, monthIndex, expenseIndex) {
+            // 繰越の編集は1月のみ許可
+            if (type === 'carryover' && monthIndex !== 0) {
+                return;
+            }
             editAmount(cell, type, monthIndex, expenseIndex);
         }
 
@@ -1136,6 +1388,183 @@
             generateMobileData();
             moveToGroup(0);
         });
+
+        // 追加ボタン機能
+        const addExpenseBtn = document.getElementById('addExpenseBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalAdd = document.getElementById('modalAdd');
+        const expenseDate = document.getElementById('expenseDate');
+        const expensePurpose = document.getElementById('expensePurpose');
+        const expenseAmount = document.getElementById('expenseAmount');
+
+        // 今日の日付をデフォルトで設定
+        function setDefaultDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            expenseDate.value = `${year}-${month}-${day}`;
+        }
+
+        // 追加ボタンクリック
+        addExpenseBtn.addEventListener('click', function() {
+            setDefaultDate();
+            expensePurpose.value = '';
+            expenseAmount.value = '';
+            modalOverlay.classList.add('active');
+        });
+
+        // モーダルを閉じる
+        modalCancel.addEventListener('click', function() {
+            modalOverlay.classList.remove('active');
+        });
+
+        // モーダル外クリックで閉じる
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+
+        // 新規支出を追加
+        modalAdd.addEventListener('click', function() {
+            const date = new Date(expenseDate.value);
+            const purpose = expensePurpose.value.trim();
+            const amount = parseInt(expenseAmount.value);
+
+            if (!expenseDate.value || !purpose || !amount) {
+                alert('すべての項目を入力してください');
+                return;
+            }
+
+            // 月を特定（0-13のインデックス）
+            const monthIndex = date.getMonth(); // 0=1月, 1=2月, ...
+            
+            // 年のチェック（2025年の場合のみ処理）
+            if (date.getFullYear() !== 2025 || monthIndex > 11) {
+                alert('2025年1月〜12月の日付を選択してください');
+                return;
+            }
+
+            // 既存の支出データで該当月にデータがあるか確認
+            let targetExpenseRow = null;
+            let emptySlotFound = false;
+
+            // 既存の行で空きスロット（'-'）を探す
+            for (let i = 0; i < budgetData.expenses.length; i++) {
+                if (budgetData.expenses[i].purposes[monthIndex] === '-' || 
+                    budgetData.expenses[i].purposes[monthIndex] === '') {
+                    targetExpenseRow = i;
+                    emptySlotFound = true;
+                    break;
+                }
+            }
+
+            // 空きスロットがない場合、新しい行を作成
+            if (!emptySlotFound) {
+                const newRow = {
+                    purposes: Array(14).fill('-'),
+                    amounts: Array(14).fill('0')
+                };
+                budgetData.expenses.push(newRow);
+                targetExpenseRow = budgetData.expenses.length - 1;
+            }
+
+            // データを設定
+            budgetData.expenses[targetExpenseRow].purposes[monthIndex] = purpose;
+            budgetData.expenses[targetExpenseRow].amounts[monthIndex] = formatAmount(-Math.abs(amount));
+
+            // ビューを再生成
+            generateDesktopData();
+            generateMobileData();
+
+            // モーダルを閉じる
+            modalOverlay.classList.remove('active');
+
+            // 成功メッセージ
+            const btn = document.getElementById('addExpenseBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '✓';
+            btn.style.background = 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)';
+            
+            // 追加した月と内容を表示
+            const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                bottom: 90px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 184, 148, 0.9);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 1000;
+                animation: fadeInOut 2s ease;
+            `;
+            message.textContent = `${monthNames[monthIndex]}に「${purpose}」¥${amount.toLocaleString()}を追加しました`;
+            document.body.appendChild(message);
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+                message.remove();
+            }, 2000);
+        });
+
+        // 支出行を削除する機能（個別のセルを長押しで削除）
+        function addDeleteListeners() {
+            document.querySelectorAll('.expense-purpose, .mobile-expense-purpose').forEach(cell => {
+                let deleteTimer;
+                
+                cell.addEventListener('mousedown', function(e) {
+                    const purpose = e.target.textContent;
+                    if (purpose && purpose !== '-') {
+                        deleteTimer = setTimeout(() => {
+                            if (confirm(`「${purpose}」を削除しますか？`)) {
+                                // データの位置を特定して削除
+                                const cellElement = e.target;
+                                // onclick属性から情報を取得するか、データ属性を使用
+                                cellElement.textContent = '-';
+                                // 対応する金額も0に
+                                const amountCell = cellElement.nextElementSibling;
+                                if (amountCell) {
+                                    amountCell.textContent = '0';
+                                }
+                                generateDesktopData();
+                                generateMobileData();
+                            }
+                        }, 1500); // 1.5秒長押し
+                    }
+                });
+
+                cell.addEventListener('mouseup', () => clearTimeout(deleteTimer));
+                cell.addEventListener('mouseleave', () => clearTimeout(deleteTimer));
+                
+                // タッチデバイス対応
+                cell.addEventListener('touchstart', function(e) {
+                    const purpose = e.target.textContent;
+                    if (purpose && purpose !== '-') {
+                        deleteTimer = setTimeout(() => {
+                            if (confirm(`「${purpose}」を削除しますか？`)) {
+                                e.target.textContent = '-';
+                                const amountCell = e.target.nextElementSibling;
+                                if (amountCell) {
+                                    amountCell.textContent = '0';
+                                }
+                                generateDesktopData();
+                                generateMobileData();
+                            }
+                        }, 1500);
+                    }
+                });
+                
+                cell.addEventListener('touchend', () => clearTimeout(deleteTimer));
+                cell.addEventListener('touchcancel', () => clearTimeout(deleteTimer));
+            });
+        }
     </script>
 </body>
 </html>

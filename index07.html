@@ -489,6 +489,166 @@
             45% { opacity: 0.3; }
         }
 
+        /* 追加ボタン */
+        .add-expense-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            font-weight: 300;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-expense-btn:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .add-expense-btn:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+
+        .add-expense-btn svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* モーダル */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 200;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn-cancel {
+            background: #ecf0f1;
+            color: #7f8c8d;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #d5dbdd;
+        }
+
+        .modal-btn-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .desktop-view {
@@ -550,236 +710,7 @@
 
                 <!-- テーブル本体 -->
                 <div class="table-body" id="tableBody">
-                    <!-- 繰越 -->
-                    <div class="row-label carryover">繰越</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">0</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">50,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">45,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">60,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">80,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">75,000</div>
-                    <div class="amount-cell carryover bonus-col" onclick="editAmount(this)">90,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">140,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">125,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">110,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">95,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">85,000</div>
-                    <div class="amount-cell carryover bonus-col" onclick="editAmount(this)">70,000</div>
-                    <div class="amount-cell carryover" onclick="editAmount(this)">120,000</div>
-
-                    <!-- 今月+ -->
-                    <div class="row-label income">今月+</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">100,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">30,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">50,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">40,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">20,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">35,000</div>
-                    <div class="amount-cell income bonus-col" onclick="editAmount(this)">400,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">25,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">15,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">25,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">20,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">15,000</div>
-                    <div class="amount-cell income bonus-col" onclick="editAmount(this)">400,000</div>
-                    <div class="amount-cell income" onclick="editAmount(this)">30,000</div>
-
-                    <!-- 月初合計 -->
-                    <div class="row-label total">月初合計</div>
-                    <div class="amount-cell total">100,000</div>
-                    <div class="amount-cell total">80,000</div>
-                    <div class="amount-cell total">95,000</div>
-                    <div class="amount-cell total">100,000</div>
-                    <div class="amount-cell total">100,000</div>
-                    <div class="amount-cell total">110,000</div>
-                    <div class="amount-cell total bonus-col">490,000</div>
-                    <div class="amount-cell total">165,000</div>
-                    <div class="amount-cell total">140,000</div>
-                    <div class="amount-cell total">135,000</div>
-                    <div class="amount-cell total">115,000</div>
-                    <div class="amount-cell total">100,000</div>
-                    <div class="amount-cell total bonus-col">470,000</div>
-                    <div class="amount-cell total">150,000</div>
-
-                    <!-- 支出ヘッダー -->
-                    <div class="row-label expense">支出項目</div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header bonus-col">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header bonus-col">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-                    <div class="expense-header">
-                        <div class="expense-header-cell">用途</div>
-                        <div class="expense-header-cell">金額</div>
-                        <div class="expense-header-cell">残高</div>
-                    </div>
-
-                    <!-- 支出行 -->
-                    <div class="row-label expense">今月-1</div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">食費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-20,000</div>
-                        <div class="expense-balance">80,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">日用品</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-15,000</div>
-                        <div class="expense-balance">65,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">交通費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-18,000</div>
-                        <div class="expense-balance">77,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">医療費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-12,000</div>
-                        <div class="expense-balance">88,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">娯楽</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-8,000</div>
-                        <div class="expense-balance">92,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">雑費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-15,000</div>
-                        <div class="expense-balance">95,000</div>
-                    </div>
-                    <div class="amount-cell-group bonus-col">
-                        <div class="expense-purpose" onclick="editPurpose(this)">旅行</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-250,000</div>
-                        <div class="expense-balance">240,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">食費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-20,000</div>
-                        <div class="expense-balance">145,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">日用品</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-12,000</div>
-                        <div class="expense-balance">128,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">交通費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-18,000</div>
-                        <div class="expense-balance">117,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">光熱費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-15,000</div>
-                        <div class="expense-balance">100,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">雑費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-10,000</div>
-                        <div class="expense-balance">90,000</div>
-                    </div>
-                    <div class="amount-cell-group bonus-col">
-                        <div class="expense-purpose" onclick="editPurpose(this)">ギフト</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-80,000</div>
-                        <div class="expense-balance">390,000</div>
-                    </div>
-                    <div class="amount-cell-group">
-                        <div class="expense-purpose" onclick="editPurpose(this)">食費</div>
-                        <div class="expense-amount" onclick="editAmount(this)">-22,000</div>
-                        <div class="expense-balance">128,000</div>
-                    </div>
-
-                    <!-- 支出合計 -->
-                    <div class="row-label expense-total">支出合計</div>
-                    <div class="amount-cell expense-total">-20,000</div>
-                    <div class="amount-cell expense-total">-15,000</div>
-                    <div class="amount-cell expense-total">-18,000</div>
-                    <div class="amount-cell expense-total">-12,000</div>
-                    <div class="amount-cell expense-total">-8,000</div>
-                    <div class="amount-cell expense-total">-15,000</div>
-                    <div class="amount-cell expense-total bonus-col">-250,000</div>
-                    <div class="amount-cell expense-total">-20,000</div>
-                    <div class="amount-cell expense-total">-12,000</div>
-                    <div class="amount-cell expense-total">-18,000</div>
-                    <div class="amount-cell expense-total">-15,000</div>
-                    <div class="amount-cell expense-total">-10,000</div>
-                    <div class="amount-cell expense-total bonus-col">-80,000</div>
-                    <div class="amount-cell expense-total">-22,000</div>
-
-                    <!-- 残高 -->
-                    <div class="row-label balance">残高</div>
-                    <div class="amount-cell balance">80,000</div>
-                    <div class="amount-cell balance">65,000</div>
-                    <div class="amount-cell balance">77,000</div>
-                    <div class="amount-cell balance">88,000</div>
-                    <div class="amount-cell balance">92,000</div>
-                    <div class="amount-cell balance">95,000</div>
-                    <div class="amount-cell balance bonus-col">240,000</div>
-                    <div class="amount-cell balance">145,000</div>
-                    <div class="amount-cell balance">128,000</div>
-                    <div class="amount-cell balance">117,000</div>
-                    <div class="amount-cell balance">100,000</div>
-                    <div class="amount-cell balance">90,000</div>
-                    <div class="amount-cell balance bonus-col">390,000</div>
-                    <div class="amount-cell balance">128,000</div>
+                    <!-- JavaScriptで動的に生成 -->
                 </div>
             </div>
         </div>
@@ -799,7 +730,7 @@
                             <div class="month">3月</div>
                         </div>
                         <div class="mobile-table-body" id="mobileTableBody1">
-                            <!-- 1-3月のデータ -->
+                            <!-- 動的生成 -->
                         </div>
                     </div>
                 </div>
@@ -814,7 +745,7 @@
                             <div class="month">6月</div>
                         </div>
                         <div class="mobile-table-body" id="mobileTableBody2">
-                            <!-- 4-6月のデータ -->
+                            <!-- 動的生成 -->
                         </div>
                     </div>
                 </div>
@@ -829,7 +760,7 @@
                             <div class="month">8月</div>
                         </div>
                         <div class="mobile-table-body" id="mobileTableBody3">
-                            <!-- 夏ボーナス-8月のデータ -->
+                            <!-- 動的生成 -->
                         </div>
                     </div>
                 </div>
@@ -844,7 +775,7 @@
                             <div class="month">11月</div>
                         </div>
                         <div class="mobile-table-body" id="mobileTableBody4">
-                            <!-- 9-11月のデータ -->
+                            <!-- 動的生成 -->
                         </div>
                     </div>
                 </div>
@@ -859,7 +790,7 @@
                             <div class="month" style="opacity: 0.3;">-</div>
                         </div>
                         <div class="mobile-table-body" id="mobileTableBody5">
-                            <!-- 冬ボーナス-12月のデータ -->
+                            <!-- 動的生成 -->
                         </div>
                     </div>
                 </div>
@@ -884,180 +815,334 @@
         <button class="nav-btn" id="nextGroup">次の3ヶ月 →</button>
     </div>
 
+    <!-- 追加ボタン -->
+    <button class="add-expense-btn" id="addExpenseBtn" title="支出行を追加">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
+
+    <!-- モーダル -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">✨ 新規支出行を追加</div>
+            <div class="modal-form">
+                <div class="form-group">
+                    <label class="form-label">行の名前（例：今月-3）</label>
+                    <input type="text" class="form-input" id="rowNameInput" placeholder="今月-3" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">初期値の用途（カンマ区切りで14個）</label>
+                    <input type="text" class="form-input" id="purposesInput" 
+                           placeholder="例: 食費,日用品,交通費,..." />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">初期値の金額（カンマ区切りで14個）</label>
+                    <input type="text" class="form-input" id="amountsInput" 
+                           placeholder="例: -5000,-3000,-2000,..." />
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn modal-btn-cancel" id="modalCancel">キャンセル</button>
+                    <button class="modal-btn modal-btn-add" id="modalAdd">追加する</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        let currentGroup = 0;
-        const totalGroups = 5;
-        const groupNames = [
-            'グループ 1 (1-3月)',
-            'グループ 2 (4-6月)', 
-            'グループ 3 (夏ボ-8月)',
-            'グループ 4 (9-11月)',
-            'グループ 5 (冬ボ-12月)'
-        ];
+        // 共通データモデル - PC/モバイル共通で使用
+        const budgetData = {
+            carryover: ['0', '50,000', '45,000', '60,000', '80,000', '75,000', '90,000', '140,000', '125,000', '110,000', '95,000', '85,000', '70,000', '120,000'],
+            income: ['100,000', '30,000', '50,000', '40,000', '20,000', '35,000', '400,000', '25,000', '15,000', '25,000', '20,000', '15,000', '400,000', '30,000'],
+            expenses: [
+                {
+                    purposes: ['食費', '日用品', '交通費', '医療費', '娯楽', '雑費', '旅行', '食費', '日用品', '交通費', '光熱費', '雑費', 'ギフト', '食費'],
+                    amounts: ['-20,000', '-15,000', '-18,000', '-12,000', '-8,000', '-15,000', '-250,000', '-20,000', '-12,000', '-18,000', '-15,000', '-10,000', '-80,000', '-22,000']
+                },
+                {
+                    purposes: ['衣服', '書籍', '外食', '歯医者', 'ジム', '交際費', '特別支出', '衣服', '雑費', '書籍', '保険', 'その他', '年末支出', 'その他'],
+                    amounts: ['-15,000', '-10,000', '-12,000', '-8,000', '-5,000', '-10,000', '-100,000', '-15,000', '-8,000', '-12,000', '-8,000', '-5,000', '-120,000', '-18,000']
+                }
+            ],
+            bonusMonths: [6, 12] // ボーナス月のインデックス（0ベース）
+        };
+
+        // デスクトップ版データ生成
+        function generateDesktopData() {
+            const body = document.getElementById('tableBody');
+            if (!body) return;
+
+            let html = '';
+
+            // 繰越
+            html += '<div class="row-label carryover">繰越</div>';
+            budgetData.carryover.forEach((val, i) => {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                html += `<div class="amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editAmount(this, 'carryover', ${i})">${val}</div>`;
+            });
+
+            // 今月+
+            html += '<div class="row-label income">今月+</div>';
+            budgetData.income.forEach((val, i) => {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                html += `<div class="amount-cell income ${isBonus ? 'bonus-col' : ''}" onclick="editAmount(this, 'income', ${i})">${val}</div>`;
+            });
+
+            // 月初合計
+            html += '<div class="row-label total">月初合計</div>';
+            budgetData.carryover.forEach((carryVal, i) => {
+                const carry = parseInt(carryVal.replace(/,/g, '')) || 0;
+                const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                const total = carry + income;
+                const isBonus = budgetData.bonusMonths.includes(i);
+                html += `<div class="amount-cell total ${isBonus ? 'bonus-col' : ''}">${formatAmount(total)}</div>`;
+            });
+
+            // 支出ヘッダー
+            html += '<div class="row-label expense">支出項目</div>';
+            for (let i = 0; i < 14; i++) {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                html += `<div class="expense-header ${isBonus ? 'bonus-col' : ''}">
+                    <div class="expense-header-cell">用途</div>
+                    <div class="expense-header-cell">金額</div>
+                    <div class="expense-header-cell">残高</div>
+                </div>`;
+            }
+
+            // 支出行 - データから動的に生成
+            budgetData.expenses.forEach((expense, expIndex) => {
+                html += `<div class="row-label expense">今月-${expIndex + 1}</div>`;
+                
+                expense.purposes.forEach((purpose, monthIdx) => {
+                    const isBonus = budgetData.bonusMonths.includes(monthIdx);
+                    const amount = parseInt(expense.amounts[monthIdx].replace(/[^-0-9]/g, '')) || 0;
+                    
+                    // 残高計算
+                    const carry = parseInt(budgetData.carryover[monthIdx].replace(/,/g, '')) || 0;
+                    const income = parseInt(budgetData.income[monthIdx].replace(/,/g, '')) || 0;
+                    const monthTotal = carry + income;
+                    
+                    let totalExpense = 0;
+                    for (let i = 0; i <= expIndex; i++) {
+                        if (i < expIndex) {
+                            totalExpense += parseInt(budgetData.expenses[i].amounts[monthIdx].replace(/[^-0-9]/g, '')) || 0;
+                        } else {
+                            totalExpense += amount;
+                        }
+                    }
+                    const balance = monthTotal + totalExpense;
+                    
+                    html += `<div class="amount-cell-group ${isBonus ? 'bonus-col' : ''}">
+                        <div class="expense-purpose" onclick="editPurpose(this, ${expIndex}, ${monthIdx})">${purpose}</div>
+                        <div class="expense-amount" onclick="editAmount(this, 'expense', ${monthIdx}, ${expIndex})">${expense.amounts[monthIdx]}</div>
+                        <div class="expense-balance">${formatAmount(balance)}</div>
+                    </div>`;
+                });
+            });
+
+            // 支出合計
+            html += '<div class="row-label expense-total">支出合計</div>';
+            for (let i = 0; i < 14; i++) {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                let total = 0;
+                budgetData.expenses.forEach(expense => {
+                    const amount = parseInt(expense.amounts[i]?.replace(/[^-0-9]/g, '')) || 0;
+                    total += amount;
+                });
+                html += `<div class="amount-cell expense-total ${isBonus ? 'bonus-col' : ''}">${formatAmount(total)}</div>`;
+            }
+
+            // 残高
+            html += '<div class="row-label balance">残高</div>';
+            for (let i = 0; i < 14; i++) {
+                const isBonus = budgetData.bonusMonths.includes(i);
+                const carry = parseInt(budgetData.carryover[i].replace(/,/g, '')) || 0;
+                const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                const monthTotal = carry + income;
+                
+                let totalExpense = 0;
+                budgetData.expenses.forEach(expense => {
+                    const amount = parseInt(expense.amounts[i]?.replace(/[^-0-9]/g, '')) || 0;
+                    totalExpense += amount;
+                });
+                
+                const balance = monthTotal + totalExpense;
+                html += `<div class="amount-cell balance ${isBonus ? 'bonus-col' : ''}">${formatAmount(balance)}</div>`;
+            }
+
+            body.innerHTML = html;
+        }
 
         // モバイル版データ生成
         function generateMobileData() {
-            const groupsData = [
-                // グループ1: 1-3月
-                {
-                    carryover: ['0', '50,000', '45,000'],
-                    income: ['100,000', '30,000', '50,000'],
-                    expenses: [
-                        { purpose: ['食費', '日用品', '交通費'], amount: ['-20,000', '-15,000', '-18,000'], balance: ['80,000', '65,000', '77,000'] },
-                        { purpose: ['衣服', '書籍', '外食'], amount: ['-15,000', '-10,000', '-12,000'], balance: ['65,000', '55,000', '65,000'] }
-                    ]
-                },
-                // グループ2: 4-6月
-                {
-                    carryover: ['60,000', '80,000', '75,000'],
-                    income: ['40,000', '20,000', '35,000'],
-                    expenses: [
-                        { purpose: ['医療費', '娯楽', '雑費'], amount: ['-12,000', '-8,000', '-15,000'], balance: ['88,000', '92,000', '95,000'] },
-                        { purpose: ['その他', '交通費', '光熱費'], amount: ['-8,000', '-5,000', '-10,000'], balance: ['80,000', '87,000', '85,000'] }
-                    ]
-                },
-                // グループ3: 夏ボーナス-8月
-                {
-                    carryover: ['90,000', '140,000', '125,000'],
-                    income: ['400,000', '25,000', '15,000'],
-                    expenses: [
-                        { purpose: ['旅行', '食費', '日用品'], amount: ['-250,000', '-20,000', '-12,000'], balance: ['240,000', '145,000', '128,000'] },
-                        { purpose: ['特別支出', '衣服', '雑費'], amount: ['-100,000', '-15,000', '-8,000'], balance: ['140,000', '130,000', '120,000'] }
-                    ]
-                },
-                // グループ4: 9-11月
-                {
-                    carryover: ['110,000', '95,000', '85,000'],
-                    income: ['25,000', '20,000', '15,000'],
-                    expenses: [
-                        { purpose: ['交通費', '光熱費', '雑費'], amount: ['-18,000', '-15,000', '-10,000'], balance: ['117,000', '100,000', '90,000'] },
-                        { purpose: ['食費', '日用品', 'その他'], amount: ['-12,000', '-8,000', '-5,000'], balance: ['105,000', '92,000', '85,000'] }
-                    ]
-                },
-                // グループ5: 冬ボーナス-12月
-                {
-                    carryover: ['70,000', '120,000', '0'],
-                    income: ['400,000', '30,000', '0'],
-                    expenses: [
-                        { purpose: ['ギフト', '食費', '-'], amount: ['-80,000', '-22,000', '0'], balance: ['390,000', '128,000', '0'] },
-                        { purpose: ['年末支出', 'その他', '-'], amount: ['-120,000', '-18,000', '0'], balance: ['270,000', '110,000', '0'] }
-                    ]
-                }
+            const mobileGroups = [
+                { start: 0, end: 3, bodyId: 'mobileTableBody1' },
+                { start: 3, end: 6, bodyId: 'mobileTableBody2' },
+                { start: 6, end: 9, bodyId: 'mobileTableBody3' },
+                { start: 9, end: 12, bodyId: 'mobileTableBody4' },
+                { start: 12, end: 14, bodyId: 'mobileTableBody5' }
             ];
 
-            groupsData.forEach((data, groupIndex) => {
-                const bodyId = `mobileTableBody${groupIndex + 1}`;
-                const body = document.getElementById(bodyId);
+            mobileGroups.forEach(group => {
+                const body = document.getElementById(group.bodyId);
                 if (!body) return;
 
                 let html = '';
+                const monthCount = group.end - group.start;
 
                 // 繰越
                 html += '<div class="mobile-row-label carryover">繰越</div>';
-                data.carryover.forEach((val, i) => {
-                    const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                    html += `<div class="mobile-amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editMobileAmount(this)">${val}</div>`;
-                });
+                for (let i = group.start; i < group.end; i++) {
+                    if (i < budgetData.carryover.length) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        html += `<div class="mobile-amount-cell carryover ${isBonus ? 'bonus-col' : ''}" onclick="editMobileAmount(this, 'carryover', ${i})">${budgetData.carryover[i]}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell carryover" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+                if (monthCount < 3) {
+                    for (let j = 0; j < 3 - monthCount; j++) {
+                        html += `<div class="mobile-amount-cell carryover" style="opacity: 0.3;">-</div>`;
+                    }
+                }
 
                 // 今月+
                 html += '<div class="mobile-row-label income">今月+</div>';
-                data.income.forEach((val, i) => {
-                    const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                    html += `<div class="mobile-amount-cell income ${isBonus ? 'bonus-col' : ''}" onclick="editMobileAmount(this)">${val}</div>`;
-                });
+                for (let i = group.start; i < group.end; i++) {
+                    if (i < budgetData.income.length) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        html += `<div class="mobile-amount-cell income ${isBonus ? 'bonus-col' : ''}" onclick="editMobileAmount(this, 'income', ${i})">${budgetData.income[i]}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell income" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+                if (monthCount < 3) {
+                    for (let j = 0; j < 3 - monthCount; j++) {
+                        html += `<div class="mobile-amount-cell income" style="opacity: 0.3;">-</div>`;
+                    }
+                }
 
                 // 月初合計
                 html += '<div class="mobile-row-label total">月初合計</div>';
-                data.carryover.forEach((carryVal, i) => {
-                    const carry = parseInt(carryVal.toString().replace(/,/g, '')) || 0;
-                    const income = parseInt(data.income[i].toString().replace(/,/g, '')) || 0;
-                    const total = carry + income;
-                    const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                    html += `<div class="mobile-amount-cell total ${isBonus ? 'bonus-col' : ''}">${formatJPYAmount(total)}</div>`;
-                });
+                for (let i = group.start; i < group.end; i++) {
+                    if (i < budgetData.carryover.length) {
+                        const carry = parseInt(budgetData.carryover[i].replace(/,/g, '')) || 0;
+                        const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                        const total = carry + income;
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        html += `<div class="mobile-amount-cell total ${isBonus ? 'bonus-col' : ''}">${formatAmount(total)}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell total" style="opacity: 0.3;">-</div>`;
+                    }
+                }
+                if (monthCount < 3) {
+                    for (let j = 0; j < 3 - monthCount; j++) {
+                        html += `<div class="mobile-amount-cell total" style="opacity: 0.3;">-</div>`;
+                    }
+                }
 
                 // 支出ヘッダー
                 html += '<div class="mobile-row-label expense">支出項目</div>';
-                for (let i = 0; i < 3; i++) {
-                    const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                    html += `<div class="mobile-expense-header ${isBonus ? 'bonus-col' : ''}">
-                        <div class="mobile-expense-header-cell">用途</div>
-                        <div class="mobile-expense-header-cell">金額</div>
-                        <div class="mobile-expense-header-cell">残高</div>
-                    </div>`;
+                for (let i = group.start; i < Math.min(group.end, group.start + 3); i++) {
+                    if (i < 14) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        html += `<div class="mobile-expense-header ${isBonus ? 'bonus-col' : ''}">
+                            <div class="mobile-expense-header-cell">用途</div>
+                            <div class="mobile-expense-header-cell">金額</div>
+                            <div class="mobile-expense-header-cell">残高</div>
+                        </div>`;
+                    } else {
+                        html += `<div class="mobile-expense-header" style="opacity: 0.3;">
+                            <div class="mobile-expense-header-cell">-</div>
+                            <div class="mobile-expense-header-cell">-</div>
+                            <div class="mobile-expense-header-cell">-</div>
+                        </div>`;
+                    }
                 }
 
-                // 支出行 - 各行ごとに3ヶ月分を横並びで表示
-                data.expenses.forEach((expense, expIndex) => {
+                // 支出行
+                budgetData.expenses.forEach((expense, expIndex) => {
                     html += `<div class="mobile-row-label expense">今月-${expIndex + 1}</div>`;
                     
-                    // 各月の3列構造を横並びで配置
-                    for (let monthIdx = 0; monthIdx < 3; monthIdx++) {
-                        const isBonus = (groupIndex === 2 && monthIdx === 0) || (groupIndex === 4 && monthIdx === 0);
-                        html += `<div class="mobile-amount-cell-group ${isBonus ? 'bonus-col' : ''}">
-                            <div class="mobile-expense-purpose" onclick="editMobilePurpose(this)">${expense.purpose[monthIdx] || '-'}</div>
-                            <div class="mobile-expense-amount" onclick="editMobileAmount(this)">${expense.amount[monthIdx] || '0'}</div>
-                            <div class="mobile-expense-balance">${expense.balance[monthIdx] || '0'}</div>
-                        </div>`;
+                    for (let i = group.start; i < Math.min(group.end, group.start + 3); i++) {
+                        if (i < expense.purposes.length) {
+                            const isBonus = budgetData.bonusMonths.includes(i);
+                            const amount = parseInt(expense.amounts[i].replace(/[^-0-9]/g, '')) || 0;
+                            
+                            // 残高計算
+                            const carry = parseInt(budgetData.carryover[i].replace(/,/g, '')) || 0;
+                            const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                            const monthTotal = carry + income;
+                            
+                            let totalExpense = 0;
+                            for (let j = 0; j <= expIndex; j++) {
+                                if (j < expIndex) {
+                                    totalExpense += parseInt(budgetData.expenses[j].amounts[i].replace(/[^-0-9]/g, '')) || 0;
+                                } else {
+                                    totalExpense += amount;
+                                }
+                            }
+                            const balance = monthTotal + totalExpense;
+                            
+                            html += `<div class="mobile-amount-cell-group ${isBonus ? 'bonus-col' : ''}">
+                                <div class="mobile-expense-purpose" onclick="editMobilePurpose(this, ${expIndex}, ${i})">${expense.purposes[i]}</div>
+                                <div class="mobile-expense-amount" onclick="editMobileAmount(this, 'expense', ${i}, ${expIndex})">${expense.amounts[i]}</div>
+                                <div class="mobile-expense-balance">${formatAmount(balance)}</div>
+                            </div>`;
+                        } else {
+                            html += `<div class="mobile-amount-cell-group" style="opacity: 0.3;">
+                                <div class="mobile-expense-purpose">-</div>
+                                <div class="mobile-expense-amount">-</div>
+                                <div class="mobile-expense-balance">-</div>
+                            </div>`;
+                        }
                     }
                 });
 
                 // 支出合計
                 html += '<div class="mobile-row-label expense-total">支出合計</div>';
-                for (let i = 0; i < 3; i++) {
-                    const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                    let total = 0;
-                    data.expenses.forEach(expense => {
-                        const amount = parseInt(expense.amount[i]?.toString().replace(/[^-0-9]/g, '')) || 0;
-                        total += amount;
-                    });
-                    html += `<div class="mobile-amount-cell expense-total ${isBonus ? 'bonus-col' : ''}">${formatJPYAmount(total)}</div>`;
+                for (let i = group.start; i < Math.min(group.end, group.start + 3); i++) {
+                    if (i < 14) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        let total = 0;
+                        budgetData.expenses.forEach(expense => {
+                            const amount = parseInt(expense.amounts[i]?.replace(/[^-0-9]/g, '')) || 0;
+                            total += amount;
+                        });
+                        html += `<div class="mobile-amount-cell expense-total ${isBonus ? 'bonus-col' : ''}">${formatAmount(total)}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell expense-total" style="opacity: 0.3;">-</div>`;
+                    }
                 }
 
                 // 残高
                 html += '<div class="mobile-row-label balance">残高</div>';
-                for (let i = 0; i < 3; i++) {
-                    const isBonus = (groupIndex === 2 && i === 0) || (groupIndex === 4 && i === 0);
-                    const lastExpense = data.expenses[data.expenses.length - 1];
-                    html += `<div class="mobile-amount-cell balance ${isBonus ? 'bonus-col' : ''}">${lastExpense.balance[i] || '0'}</div>`;
+                for (let i = group.start; i < Math.min(group.end, group.start + 3); i++) {
+                    if (i < 14) {
+                        const isBonus = budgetData.bonusMonths.includes(i);
+                        const carry = parseInt(budgetData.carryover[i].replace(/,/g, '')) || 0;
+                        const income = parseInt(budgetData.income[i].replace(/,/g, '')) || 0;
+                        const monthTotal = carry + income;
+                        
+                        let totalExpense = 0;
+                        budgetData.expenses.forEach(expense => {
+                            const amount = parseInt(expense.amounts[i]?.replace(/[^-0-9]/g, '')) || 0;
+                            totalExpense += amount;
+                        });
+                        
+                        const balance = monthTotal + totalExpense;
+                        html += `<div class="mobile-amount-cell balance ${isBonus ? 'bonus-col' : ''}">${formatAmount(balance)}</div>`;
+                    } else {
+                        html += `<div class="mobile-amount-cell balance" style="opacity: 0.3;">-</div>`;
+                    }
                 }
 
                 body.innerHTML = html;
             });
         }
 
-        function moveToGroup(groupIndex) {
-            if (groupIndex < 0 || groupIndex >= totalGroups) return;
-            
-            currentGroup = groupIndex;
-            const wrapper = document.getElementById('swipeWrapper');
-            wrapper.style.transform = `translateX(-${groupIndex * 100}%)`;
-            
-            updateNavigation();
-        }
-
-        function updateNavigation() {
-            document.getElementById('groupTitle').textContent = groupNames[currentGroup];
-            
-            // ドット更新
-            const dots = document.querySelectorAll('.group-dot');
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentGroup);
-            });
-            
-            // ボタン状態更新
-            document.getElementById('prevGroup').disabled = currentGroup === 0;
-            document.getElementById('nextGroup').disabled = currentGroup === totalGroups - 1;
-            
-            // ヒント非表示
-            if (currentGroup > 0) {
-                const hint = document.getElementById('swipeHint');
-                if (hint) hint.style.display = 'none';
-            }
-        }
-
-        // 編集機能
-        function editAmount(cell) {
+        // 編集機能（データモデル更新版）
+        function editAmount(cell, type, monthIndex, expenseIndex) {
             const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
             const input = document.createElement('input');
             input.type = 'number';
@@ -1074,7 +1159,20 @@
             
             function saveValue() {
                 const value = parseInt(input.value) || 0;
-                cell.innerHTML = formatAmount(value);
+                const formattedValue = formatAmount(value);
+                
+                // データモデルを更新
+                if (type === 'carryover') {
+                    budgetData.carryover[monthIndex] = formattedValue;
+                } else if (type === 'income') {
+                    budgetData.income[monthIndex] = formattedValue;
+                } else if (type === 'expense' && expenseIndex !== undefined) {
+                    budgetData.expenses[expenseIndex].amounts[monthIndex] = formattedValue;
+                }
+                
+                // 両方のビューを再生成
+                generateDesktopData();
+                generateMobileData();
             }
             
             input.addEventListener('blur', saveValue);
@@ -1083,7 +1181,7 @@
             });
         }
 
-        function editPurpose(cell) {
+        function editPurpose(cell, expenseIndex, monthIndex) {
             const currentValue = cell.textContent;
             const input = document.createElement('input');
             input.type = 'text';
@@ -1100,7 +1198,13 @@
             
             function saveValue() {
                 const value = input.value.trim() || '-';
-                cell.innerHTML = value;
+                
+                // データモデルを更新
+                budgetData.expenses[expenseIndex].purposes[monthIndex] = value;
+                
+                // 両方のビューを再生成
+                generateDesktopData();
+                generateMobileData();
             }
             
             input.addEventListener('blur', saveValue);
@@ -1109,69 +1213,56 @@
             });
         }
 
-        function editMobileAmount(cell) {
-            const currentValue = cell.textContent.replace(/[^-0-9]/g, '');
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.value = currentValue;
-            input.style.width = '100%';
-            input.style.fontSize = '12px';
-            input.style.padding = '4px';
-            input.style.border = '2px solid #3498db';
-            input.style.borderRadius = '4px';
-            input.style.textAlign = 'center';
-            
-            cell.innerHTML = '';
-            cell.appendChild(input);
-            input.focus();
-            input.select();
-            
-            function saveValue() {
-                const value = parseInt(input.value) || 0;
-                cell.innerHTML = formatJPYAmount(value);
-            }
-            
-            input.addEventListener('blur', saveValue);
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') saveValue();
-            });
+        function editMobileAmount(cell, type, monthIndex, expenseIndex) {
+            editAmount(cell, type, monthIndex, expenseIndex);
         }
 
-        function editMobilePurpose(cell) {
-            const currentValue = cell.textContent;
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = currentValue === '-' ? '' : currentValue;
-            input.style.width = '100%';
-            input.style.fontSize = '10px';
-            input.style.padding = '4px';
-            input.style.border = '2px solid #3498db';
-            input.style.borderRadius = '4px';
-            
-            cell.innerHTML = '';
-            cell.appendChild(input);
-            input.focus();
-            input.select();
-            
-            function saveValue() {
-                const value = input.value.trim() || '-';
-                cell.innerHTML = value;
-            }
-            
-            input.addEventListener('blur', saveValue);
-            input.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') saveValue();
-            });
-        }
-
-        function formatJPYAmount(amount) {
-            if (amount === 0) return '0';
-            return amount.toLocaleString();
+        function editMobilePurpose(cell, expenseIndex, monthIndex) {
+            editPurpose(cell, expenseIndex, monthIndex);
         }
 
         function formatAmount(amount) {
             if (amount === 0) return '0';
-            return amount.toLocaleString();
+            const prefix = amount < 0 ? '-' : '';
+            return prefix + Math.abs(amount).toLocaleString();
+        }
+
+        // スワイプ機能
+        let currentGroup = 0;
+        const totalGroups = 5;
+        const groupNames = [
+            'グループ 1 (1-3月)',
+            'グループ 2 (4-6月)', 
+            'グループ 3 (夏ボ-8月)',
+            'グループ 4 (9-11月)',
+            'グループ 5 (冬ボ-12月)'
+        ];
+
+        function moveToGroup(groupIndex) {
+            if (groupIndex < 0 || groupIndex >= totalGroups) return;
+            
+            currentGroup = groupIndex;
+            const wrapper = document.getElementById('swipeWrapper');
+            wrapper.style.transform = `translateX(-${groupIndex * 100}%)`;
+            
+            updateNavigation();
+        }
+
+        function updateNavigation() {
+            document.getElementById('groupTitle').textContent = groupNames[currentGroup];
+            
+            const dots = document.querySelectorAll('.group-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentGroup);
+            });
+            
+            document.getElementById('prevGroup').disabled = currentGroup === 0;
+            document.getElementById('nextGroup').disabled = currentGroup === totalGroups - 1;
+            
+            if (currentGroup > 0) {
+                const hint = document.getElementById('swipeHint');
+                if (hint) hint.style.display = 'none';
+            }
         }
 
         // スワイプイベント
@@ -1224,7 +1315,6 @@
 
         // キーボードイベント
         document.addEventListener('keydown', function(e) {
-            // モバイル版でのみキーボードイベントを有効にする
             if (window.innerWidth <= 768) {
                 if (e.key === 'ArrowLeft' && currentGroup > 0) {
                     moveToGroup(currentGroup - 1);
@@ -1235,8 +1325,108 @@
         });
 
         // 初期化
-        generateMobileData();
-        moveToGroup(0);
+        window.addEventListener('DOMContentLoaded', function() {
+            generateDesktopData();
+            generateMobileData();
+            moveToGroup(0);
+        });
+
+        // 追加ボタン機能
+        const addExpenseBtn = document.getElementById('addExpenseBtn');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalAdd = document.getElementById('modalAdd');
+        const rowNameInput = document.getElementById('rowNameInput');
+        const purposesInput = document.getElementById('purposesInput');
+        const amountsInput = document.getElementById('amountsInput');
+
+        // 追加ボタンクリック
+        addExpenseBtn.addEventListener('click', function() {
+            // デフォルト値を設定
+            const nextIndex = budgetData.expenses.length + 1;
+            rowNameInput.value = `今月-${nextIndex}`;
+            purposesInput.value = '-,-,-,-,-,-,-,-,-,-,-,-,-,-';
+            amountsInput.value = '0,0,0,0,0,0,0,0,0,0,0,0,0,0';
+            
+            modalOverlay.classList.add('active');
+        });
+
+        // モーダルを閉じる
+        modalCancel.addEventListener('click', function() {
+            modalOverlay.classList.remove('active');
+        });
+
+        // モーダル外クリックで閉じる
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+
+        // 新規行を追加
+        modalAdd.addEventListener('click', function() {
+            const purposes = purposesInput.value.split(',').map(p => p.trim() || '-');
+            const amounts = amountsInput.value.split(',').map(a => {
+                const val = a.trim();
+                if (!val || val === '0') return '0';
+                const num = parseInt(val.replace(/[^-0-9]/g, ''));
+                return formatAmount(num);
+            });
+
+            // 14個に調整
+            while (purposes.length < 14) purposes.push('-');
+            while (amounts.length < 14) amounts.push('0');
+            purposes.length = 14;
+            amounts.length = 14;
+
+            // データモデルに追加
+            budgetData.expenses.push({
+                purposes: purposes,
+                amounts: amounts
+            });
+
+            // ビューを再生成
+            generateDesktopData();
+            generateMobileData();
+
+            // モーダルを閉じる
+            modalOverlay.classList.remove('active');
+
+            // 成功メッセージ（オプション）
+            const btn = document.getElementById('addExpenseBtn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '✓';
+            btn.style.background = 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)';
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+            }, 1500);
+        });
+
+        // 支出行を削除する機能（長押しで削除）
+        let deleteTimer;
+        
+        function addDeleteListener(element, expenseIndex) {
+            element.addEventListener('mousedown', function(e) {
+                if (e.target.classList.contains('row-label') && e.target.classList.contains('expense')) {
+                    deleteTimer = setTimeout(() => {
+                        if (confirm(`「${e.target.textContent}」の行を削除しますか？`)) {
+                            budgetData.expenses.splice(expenseIndex, 1);
+                            generateDesktopData();
+                            generateMobileData();
+                        }
+                    }, 1000); // 1秒長押し
+                }
+            });
+
+            element.addEventListener('mouseup', function() {
+                clearTimeout(deleteTimer);
+            });
+
+            element.addEventListener('mouseleave', function() {
+                clearTimeout(deleteTimer);
+            });
+        }
     </script>
 </body>
 </html>
