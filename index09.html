@@ -56,13 +56,13 @@
         }
 
         .budget-table {
-            min-width: 1120px;
+            min-width: 1480px;
             width: 100%;
         }
 
         .month-header {
             display: grid;
-            grid-template-columns: 80px repeat(14, 80px);
+            grid-template-columns: 80px repeat(14, 100px);
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             font-weight: 600;
@@ -92,7 +92,7 @@
 
         .table-body {
             display: grid;
-            grid-template-columns: 80px repeat(14, 80px);
+            grid-template-columns: 80px repeat(14, 100px);
         }
 
         .row-label {
@@ -164,13 +164,16 @@
         .expense-purpose {
             background: #ffebee;
             color: #d32f2f;
-            font-size: 8px;
+            font-size: 9px;
             text-align: center;
             padding: 6px 2px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
         }
 
         .expense-amount {
@@ -179,7 +182,7 @@
             font-weight: 500;
             text-align: center;
             padding: 6px 2px;
-            font-size: 8px;
+            font-size: 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -192,7 +195,7 @@
             font-weight: 600;
             text-align: center;
             padding: 6px 2px;
-            font-size: 7px;
+            font-size: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -217,7 +220,7 @@
             color: white;
             padding: 6px 2px;
             text-align: center;
-            font-size: 7px;
+            font-size: 8px;
             font-weight: 600;
             display: flex;
             align-items: center;
