@@ -1648,17 +1648,20 @@
 
         // 成功メッセージを表示
         function showSuccessMessage(type, monthIndex, description, amount) {
-            const btn = document.getElementById('addExpenseBtn');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '✓';
+            // メインの+ボタンに成功マークを表示
+            const mainBtn = document.getElementById('addExpenseBtn');
+            const originalHTML = mainBtn.innerHTML;
+            mainBtn.innerHTML = '✓';
             
             if (type === 'expense') {
-                btn.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
+                mainBtn.style.background = 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)';
             } else {
-                btn.style.background = 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)';
+                mainBtn.style.background = 'linear-gradient(135deg, #00b894 0%, #00cec9 100%)';
             }
             
             const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+            
+            // トースト通知を作成
             const message = document.createElement('div');
             message.style.cssText = `
                 position: fixed;
@@ -1670,23 +1673,49 @@
                 padding: 12px 24px;
                 border-radius: 8px;
                 font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                 z-index: 1000;
-                animation: fadeInOut 2s ease;
+                animation: slideUpFade 0.3s ease;
             `;
             
+            // メッセージ内容を設定
             if (type === 'expense') {
-                message.textContent = `${monthNames[monthIndex]}に支出「${description}」¥${amount.toLocaleString()}を追加しました`;
+                message.innerHTML = `🔥 ${monthNames[monthIndex]}に支出「${description}」<span style="font-size: 16px; font-weight: bold;">¥${amount.toLocaleString()}</span>を追加しました！`;
             } else {
-                message.textContent = `${monthNames[monthIndex]}に収入「${description}」¥${amount.toLocaleString()}を追加しました`;
+                message.innerHTML = `💰 ${monthNames[monthIndex]}に収入「${description}」<span style="font-size: 16px; font-weight: bold;">¥${amount.toLocaleString()}</span>を追加しました！`;
             }
             
             document.body.appendChild(message);
+            
+            // アニメーション用のスタイルを追加
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUpFade {
+                    from {
+                        opacity: 0;
+                        transform: translateX(-50%) translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(-50%) translateY(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
 
+            // 2.5秒後に消去
             setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.style.background = '';
-                message.remove();
-            }, 2000);
+                message.style.animation = 'slideDownFade 0.3s ease';
+                message.style.opacity = '0';
+                
+                setTimeout(() => {
+                    mainBtn.innerHTML = originalHTML;
+                    mainBtn.style.background = '';
+                    message.remove();
+                    style.remove();
+                }, 300);
+            }, 2500);
         }
 
         // 支出行を削除する機能（個別のセルを長押しで削除）
