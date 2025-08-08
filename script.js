@@ -472,36 +472,36 @@ function updateNavigation() {
 }
 
 // スワイプイベント
-let startX = 0;
-let currentX = 0;
-let isDragging = false;
+// let startX = 0;
+// let currentX = 0;
+// let isDragging = false;
 
-const container = document.getElementById('swipeContainer');
+// const container = document.getElementById('swipeContainer');
 
-container.addEventListener('touchstart', function(e) {
-    startX = e.touches[0].clientX;
-    isDragging = true;
-});
+// container.addEventListener('touchstart', function(e) {
+//     startX = e.touches[0].clientX;
+//     isDragging = true;
+// });
 
-container.addEventListener('touchmove', function(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    currentX = e.touches[0].clientX;
-});
+// container.addEventListener('touchmove', function(e) {
+//     if (!isDragging) return;
+//     e.preventDefault();
+//     currentX = e.touches[0].clientX;
+// });
 
-container.addEventListener('touchend', function(e) {
-    if (!isDragging) return;
-    isDragging = false;
+// container.addEventListener('touchend', function(e) {
+//     if (!isDragging) return;
+//     isDragging = false;
     
-    const deltaX = startX - currentX;
-    const threshold = 50;
+//     const deltaX = startX - currentX;
+//     const threshold = 50;
     
-    if (deltaX > threshold && currentGroup < totalGroups - 1) {
-        moveToGroup(currentGroup + 1);
-    } else if (deltaX < -threshold && currentGroup > 0) {
-        moveToGroup(currentGroup - 1);
-    }
-});
+//     if (deltaX > threshold && currentGroup < totalGroups - 1) {
+//         moveToGroup(currentGroup + 1);
+//     } else if (deltaX < -threshold && currentGroup > 0) {
+//         moveToGroup(currentGroup - 1);
+//     }
+// });
 
 // ナビゲーションボタン
 const prevBtn = document.getElementById('prevGroup');

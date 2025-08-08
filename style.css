@@ -227,9 +227,15 @@ body {
 }
 
 .swipe-container {
-    position: relative;
+    /* 3ヶ月毎表示 */
+    /* position: relative;
     overflow: hidden;
-    min-height: calc(100vh - 200px);
+    min-height: calc(100vh - 200px); */
+    
+    position: relative;
+    overflow-x: auto;  /* hidden → auto に変更 */
+    -webkit-overflow-scrolling: touch;  /* スムーズスクロール追加 */
+     min-height: calc(100vh - 200px);
 }
 
 .swipe-wrapper {
