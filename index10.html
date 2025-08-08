@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予備費管理 - ハイブリッド版</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>💰 予備費管理</h1>
+        <div class="year-info">2025年度 - ハイブリッド版（PC:横スクロール / スマホ:3ヶ月スワイプ）</div>
+    </div>
+
+    <!-- デスクトップ版 -->
+    <div class="budget-container desktop-view">
+        <div class="budget-scroll">
+            <div class="budget-table">
+                <!-- 月のヘッダー -->
+                <div class="month-header">
+                    <div class="label">項目</div>
+                    <div class="month">1月</div>
+                    <div class="month">2月</div>
+                    <div class="month">3月</div>
+                    <div class="month">4月</div>
+                    <div class="month">5月</div>
+                    <div class="month">6月</div>
+                    <div class="month bonus">夏ボ</div>
+                    <div class="month">7月</div>
+                    <div class="month">8月</div>
+                    <div class="month">9月</div>
+                    <div class="month">10月</div>
+                    <div class="month">11月</div>
+                    <div class="month bonus">冬ボ</div>
+                    <div class="month">12月</div>
+                </div>
+
+                <!-- テーブル本体 -->
+                <div class="table-body" id="tableBody">
+                    <!-- JavaScriptで動的に生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- モバイル版 -->
+    <div class="budget-container mobile-view">
+        <div class="swipe-container" id="swipeContainer">
+            <div class="swipe-wrapper" id="swipeWrapper">
+                <!-- グループ1: 1-3月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month">1月</div>
+                            <div class="month">2月</div>
+                            <div class="month">3月</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody1">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グループ2: 4-6月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month">4月</div>
+                            <div class="month">5月</div>
+                            <div class="month">6月</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody2">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グループ3: 夏ボーナス-8月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month bonus">夏ボ</div>
+                            <div class="month">7月</div>
+                            <div class="month">8月</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody3">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グループ4: 9-11月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month">9月</div>
+                            <div class="month">10月</div>
+                            <div class="month">11月</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody4">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- グループ5: 冬ボーナス-12月 -->
+                <div class="month-group">
+                    <div class="mobile-table">
+                        <div class="mobile-month-header">
+                            <div class="label">項目</div>
+                            <div class="month bonus">冬ボ</div>
+                            <div class="month">12月</div>
+                            <div class="month" style="opacity: 0.3;">-</div>
+                        </div>
+                        <div class="mobile-table-body" id="mobileTableBody5">
+                            <!-- 動的生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="swipe-hint" id="swipeHint">← スワイプで次の3ヶ月 →</div>
+        </div>
+    </div>
+
+    <!-- モバイル版ナビゲーション -->
+    <div class="navigation">
+        <button class="nav-btn" id="prevGroup">← 前の3ヶ月</button>
+        <div class="group-indicator">
+            <div id="groupTitle">グループ 1 (1-3月)</div>
+            <div class="group-dots" id="groupDots">
+                <div class="group-dot active"></div>
+                <div class="group-dot"></div>
+                <div class="group-dot"></div>
+                <div class="group-dot"></div>
+                <div class="group-dot"></div>
+            </div>
+        </div>
+        <button class="nav-btn" id="nextGroup">次の3ヶ月 →</button>
+    </div>
+
+    <!-- 追加ボタン -->
+    <button class="add-expense-btn" id="addExpenseBtn" title="支出行を追加">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+    </button>
+
+    <!-- モーダル -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <!-- タブ -->
+            <div class="modal-tabs">
+                <button class="modal-tab active" id="expenseTab" onclick="switchTab('expense')">
+                    💸 支出を追加
+                </button>
+                <button class="modal-tab" id="incomeTab" onclick="switchTab('income')">
+                    💰 収入を追加
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- 支出タブコンテンツ -->
+                <div class="tab-content active" id="expenseContent">
+                    <div class="modal-form">
+                        <div class="form-group">
+                            <label class="form-label">日付</label>
+                            <input type="date" class="form-input" id="expenseDate" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">用途</label>
+                            <input type="text" class="form-input" id="expensePurpose" 
+                                   placeholder="例: 教育費、医療費、食費など" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">金額（円）</label>
+                            <input type="number" class="form-input" id="expenseAmount" 
+                                   placeholder="例: 50000" />
+                        </div>
+                        <div class="modal-buttons">
+                            <button class="modal-btn modal-btn-cancel" onclick="closeModal()">キャンセル</button>
+                            <button class="modal-btn modal-btn-add" id="addExpenseBtnModal">追加する</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 収入タブコンテンツ -->
+                <div class="tab-content" id="incomeContent">
+                    <div class="modal-form">
+                        <div class="form-group">
+                            <label class="form-label">日付</label>
+                            <input type="date" class="form-input" id="incomeDate" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">収入源</label>
+                            <input type="text" class="form-input" id="incomeSource" 
+                                   placeholder="例: 臨時収入、副業、ボーナスなど" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">金額（円）</label>
+                            <input type="number" class="form-input" id="incomeAmount" 
+                                   placeholder="例: 100000" />
+                        </div>
+                        <div class="modal-buttons">
+                            <button class="modal-btn modal-btn-cancel" onclick="closeModal()">キャンセル</button>
+                            <button class="modal-btn modal-btn-add-income" id="addIncomeBtnModal">追加する</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
