@@ -818,3 +818,106 @@ function addDeleteListeners() {
         cell.addEventListener('touchcancel', () => clearTimeout(deleteTimer));
     });
 }
+
+
+// test
+// === データ永続化機能 ===
+
+// 自動保存を有効化
+function enableAutoSave() {
+    // 既存の編集関数をラップ
+    const originalGenerateDesktop = generateDesktopData;
+    const originalGenerateMobile = generateMobileData;
+    
+    generateDesktopData = function() {
+        originalGenerateDesktop();
+        saveDataToStorage();
+    };
+    
+    generateMobileData = function() {
+        originalGenerateMobile();
+        saveDataToStorage();
+    };
+}
+
+// localStorage保存
+function saveDataToStorage() {
+    try {
+        localStorage.setItem('budgetData_2025', JSON.stringify(budgetData));
+        console.log('✅ データ自動保存完了');
+    } catch (e) {
+        console.error('保存エラー:', e);
+    }
+}
+
+// localStorage読み込み
+function loadDataFromStorage() {
+    try {
+        const saved = localStorage.getItem('budgetData_2025');
+        if (saved) {
+            const loadedData = JSON.parse(saved);
+            Object.assign(budgetData, loadedData);
+            console.log('✅ 保存データ読み込み完了');
+            return true;
+        }
+    } catch (e) {
+        console.error('読み込みエラー:', e);
+    }
+    return false;
+}
+
+// エクスポート機能
+function exportData() {
+    const dataStr = JSON.stringify(budgetData, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `budget_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+}
+
+// インポート機能
+function importData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const imported = JSON.parse(event.target.result);
+                Object.assign(budgetData, imported);
+                generateDesktopData();
+                generateMobileData();
+                saveDataToStorage();
+                alert('✅ データをインポートしました');
+            } catch (err) {
+                alert('❌ インポート失敗: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+// 初期化を修正
+const originalInit = window.addEventListener;
+window.addEventListener('DOMContentLoaded', function() {
+    // 保存データを読み込み
+    loadDataFromStorage();
+    
+    // 自動保存を有効化
+    enableAutoSave();
+    
+    // 通常の初期化
+    generateDesktopData();
+    generateMobileData();
+    moveToGroup(0);
+    
+    // デバッグ用コンソール
+    console.log('💾 localStorage自動保存: 有効');
+    console.log('📝 データエクスポート: exportData()');
+    console.log('📂 データインポート: importData()');
+});
